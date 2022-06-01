@@ -1,4 +1,9 @@
 {
     "port": 3000,
-    "logLevel": "log"
+    "logLevel": "log",
+    "db.host": "localhost",
+    "db.port": 5432,
+    "db.user": "user",
+    "db.password": "password",
+    "db.name": "autodb"
 }
