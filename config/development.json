@@ -1,0 +1,24 @@
+{
+    "app": {
+        "port": 3000,
+        "logs": {
+            "level": "log"
+        }
+    },
+    "db": {
+        "host": "localhost",
+        "port": 5432,
+        "user": "user",
+        "password": "password",
+        "name": "autodb",
+        "runMigrations": false,
+        "migrationsPath": [
+            "dist/migration/*.js"
+        ],
+        "logging": [
+            "warn",
+            "error",
+            "info"
+        ]
+    }
+}
