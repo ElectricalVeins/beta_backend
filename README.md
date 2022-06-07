@@ -1,3 +1,9 @@
+## Dependencies
+- Linux (Ubuntu)
+- Docker
+- Docker-compose
+- Node 16
+
 ## Installation
 
 ```bash
@@ -7,7 +13,7 @@ $ yarn install
 ## Running the app
 
 ```bash
-#Prepare environment
+# Prepare environment
 $ yarn run env:local:start
 
 # development
