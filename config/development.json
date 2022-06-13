@@ -1,6 +1,7 @@
 {
     "app": {
         "port": 3000,
+        "jwtSecret": "super_secret",
         "logs": {
             "level": "log"
         }
@@ -13,12 +14,16 @@
         "name": "autodb",
         "runMigrations": false,
         "migrationsPath": [
-            "dist/migration/*.js"
+            "src/**/*entity.ts"
         ],
         "logging": [
             "warn",
             "error",
             "info"
-        ]
+        ],
+        "cli":{
+            "entitiesDir": "src/**/*.entity.ts",
+            "migrationsDir": "src/migration"
+        }
     }
 }

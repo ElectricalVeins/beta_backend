@@ -2,32 +2,43 @@ import { Injectable } from '@nestjs/common';
 import { ID } from 'src/types';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './entities/user.entity';
+import { User } from './user.entity';
 
 @Injectable()
 export class UserService {
   create(createUserDto: CreateUserDto) {
     try {
-      const t = new User();
-      const repo = User.getRepository();
-      console.log(t);
+      /* validate user */
+      /* check user email and login on uniqueness (via hooks or simply catch the error) */
+      /* hash password */
+      /* create user */
+      /* return user without password */
+      /* create token pair */
+      /* return user and token pair */
     } catch (e) {
-      console.log(e);
-      throw new Error(e.message);
+      /* ??? */
     }
-
     return JSON.stringify(createUserDto);
   }
 
   findAll() {
-    return `This action returns all user`;
+    /* check rights */
+    /* return users for admin panel */
+    return [];
   }
 
   findOne(id: ID) {
+    /* check user rights */
+    /* check token */
+    /* return user */
     return `This action returns a #${id} user`;
   }
 
   update(id: ID, updateUserDto: UpdateUserDto) {
+    /* check rights */
+    /* check token */
+    /* check updateable fields for user */
+    /* update and return */
     return `This action updates a #${id} user`;
   }
 }

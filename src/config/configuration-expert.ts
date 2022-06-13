@@ -1,5 +1,6 @@
 import * as localConfig from 'config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 
 class ConfigurationExpert {
   private readonly localConfig: any;
@@ -14,8 +15,8 @@ class ConfigurationExpert {
       : defaultValue;
   }
 
-  public getOrmConfig(): TypeOrmModuleOptions {
-    return {
+  public getOrmConfig(isCli = false): any {
+    const opts: TypeOrmModuleOptions = {
       type: 'postgres',
       host: this.get('db.host'),
       port: this.get('db.port'),
@@ -26,9 +27,11 @@ class ConfigurationExpert {
       migrations: this.get('db.migrationsPath'),
       migrationsRun: this.get('db.runMigrations'),
       logging: this.get('db.logging', false),
+      // entities: this.get('db.cli.entitiesDir'),
     };
+    return isCli ? new DataSource(opts as any) : opts;
   }
 }
 
 export const config: ConfigurationExpert = new ConfigurationExpert();
-export default config.getOrmConfig();
+export default config.getOrmConfig(true);

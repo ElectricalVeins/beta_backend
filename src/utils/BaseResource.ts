@@ -1,1 +1,3 @@
-class BaseResource<T> {}
+import { BaseModel } from './BaseModel';
+
+class BaseResource<T extends BaseModel> {}
