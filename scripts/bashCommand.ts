@@ -1,6 +1,6 @@
 import { spawn } from 'child_process';
 
-export async function bashCommand(
+export default async function bashCommand(
   command: string,
   args?: string[],
   errorMessage?: string

@@ -13,17 +13,14 @@
         "password": "password",
         "name": "autodb",
         "runMigrations": false,
-        "migrationsPath": [
-            "src/**/*entity.ts"
-        ],
         "logging": [
             "warn",
             "error",
             "info"
         ],
         "cli":{
-            "entitiesDir": "src/**/*.entity.ts",
-            "migrationsDir": "src/migration"
+            "entitiesDir": ["src/**/*.entity.ts"],
+            "migrationsDir": ["src/migrations/**.ts"]
         }
     }
 }

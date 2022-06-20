@@ -1,6 +1,7 @@
-import { bashCommand } from '..';
+/* eslint-disable no-console */
+import bashCommand from '../../bashCommand';
 
-async function run(command: string) {
+async function run(command: string): Promise<void> {
   switch (command.toLowerCase()) {
     case 'start': {
       return await bashCommand('docker-compose', [
