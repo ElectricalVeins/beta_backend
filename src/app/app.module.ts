@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from 'src/auth/auth.module';
-import { AuthGuard } from 'src/auth/guards/auth.guard';
+// import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RoleModule } from 'src/role/role.module';
 import { UserModule } from 'src/user/user.module';
@@ -13,9 +13,9 @@ import { AppService } from './app.service';
 @Module({
   imports: [
     TypeOrmModule.forRoot(config.getOrmConfig()),
+    RoleModule,
     UserModule,
     AuthModule,
-    RoleModule,
   ],
   controllers: [AppController],
   providers: [

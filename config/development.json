@@ -1,7 +1,14 @@
 {
     "app": {
         "port": 3000,
-        "jwtSecret": "super_secret",
+        "jwt": {
+            "secret": "super_secret",
+            "timeAccess": "60m",
+            "timeRefresh": "7d"
+        },
+        "security": {
+            "salt": 10
+        },
         "logs": {
             "level": "log"
         }

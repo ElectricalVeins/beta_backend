@@ -1,9 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { Role } from './role.entity';
+import { Role, RolesEnum } from './role.entity';
 
 @Injectable()
 export class RoleService {
-  getAllRoles() {
+  getAllRoles(): Promise<Role[]> {
     return Role.find();
+  }
+
+  getRoleByName(name: RolesEnum): Promise<Role> {
+    return Role.findOne({ where: { name } });
   }
 }

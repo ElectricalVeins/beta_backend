@@ -1,4 +1,7 @@
 import {
+  AfterLoad,
+  BeforeInsert,
+  BeforeUpdate,
   Column,
   CreateDateColumn,
   Entity,
@@ -7,8 +10,12 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import bcrypt from 'bcrypt';
 import { Role, RolesEnum } from '../role/role.entity';
 import { BaseModel } from '../utils/BaseModel';
+import { config } from '../config/configuration-expert';
+
+const SALT = config.get('app.security.salt');
 
 export const enum UserStatusEnum {
   BLOCKED = 'BLOCKED',
@@ -48,4 +55,19 @@ export class User extends BaseModel {
 
   @CreateDateColumn()
   createDate: Date;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  hashPassword(): void {
+    if (this.password) {
+      this.password = bcrypt.hash(this.password, SALT);
+    }
+  }
+
+  @AfterLoad()
+  hidePassword(): void {
+    if (this.password) {
+      this.password = undefined;
+    }
+  }
 }
