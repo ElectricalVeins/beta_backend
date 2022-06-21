@@ -17,18 +17,26 @@ export class UserService {
   }
 
   findAll() {
-    /* check rights */
     /* return users for admin panel */
     return [];
   }
 
-  findOne(id: ID) {
-    /* check user rights */
-    /* check token */
-    /* return user */
-    return `This action returns a #${id} user`;
+  async checkPassword(user, checkPassword): Promise<boolean> {
+    return User.checkPassword(user, checkPassword);
   }
 
+  /*repo*/
+  findOneById(id: number) {
+    return User.findOneBy({ id });
+  }
+
+  async findOneByLoginOrEmail(search: string): Promise<User> {
+    return await User.findOne({
+      where: [{ login: search }, { email: search }],
+      relations: ['role'],
+    });
+  }
+  /*end repo*/
   update(id: ID, updateUserDto: UpdateUserDto) {
     /* check rights */
     /* check token */

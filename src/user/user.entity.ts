@@ -10,7 +10,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 import { Role, RolesEnum } from '../role/role.entity';
 import { BaseModel } from '../utils/BaseModel';
 import { config } from '../config/configuration-expert';
@@ -26,6 +26,8 @@ export const enum UserStatusEnum {
 
 @Entity()
 export class User extends BaseModel {
+  readonly IGNORED_FIELDS = ['password'];
+
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -47,7 +49,7 @@ export class User extends BaseModel {
   })
   status: UserStatusEnum;
 
-  @ManyToOne(() => Role, (role) => role.users)
+  @ManyToOne(() => Role, (role) => role.users, { nullable: false })
   role: RolesEnum;
 
   @UpdateDateColumn()
@@ -58,16 +60,13 @@ export class User extends BaseModel {
 
   @BeforeInsert()
   @BeforeUpdate()
-  hashPassword(): void {
+  async hashPassword(): Promise<void> {
     if (this.password) {
-      this.password = bcrypt.hash(this.password, SALT);
+      this.password = await bcrypt.hash(this.password, await bcrypt.genSalt(SALT));
     }
   }
 
-  @AfterLoad()
-  hidePassword(): void {
-    if (this.password) {
-      this.password = undefined;
-    }
+  static async checkPassword(user: User, checkPassword: string): Promise<boolean> {
+    return bcrypt.compare(checkPassword, user.password);
   }
 }

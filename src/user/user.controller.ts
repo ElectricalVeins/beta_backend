@@ -20,7 +20,7 @@ export class UserController {
   @Roles(RolesEnum.ADMIN, RolesEnum.USER, RolesEnum.PREMIUM)
   @UseGuards(JwtAuthGuard)
   findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
+    return this.userService.findOneById(+id);
   }
 
   @Patch(':id')
