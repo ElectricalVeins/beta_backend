@@ -1,5 +1,4 @@
 import {
-  AfterLoad,
   BeforeInsert,
   BeforeUpdate,
   Column,

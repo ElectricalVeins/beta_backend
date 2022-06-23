@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ID } from 'src/types';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './user.entity';
 import { RolesEnum } from '../role/role.entity';
 import { RoleService } from '../role/role.service';
+import { FindManyOptions } from 'typeorm';
 
 @Injectable()
 export class UserService {
@@ -16,32 +17,40 @@ export class UserService {
     return await draft.save();
   }
 
-  findAll() {
+  /*repo*/
+  async findOneById(id: number): Promise<Partial<User>> {
+    const foundUser = await User.findOne({
+      where: { id },
+      relations: { role: true },
+    });
+    if (!foundUser) {
+      throw new NotFoundException();
+    }
+    return foundUser;
+  }
+
+  async findAll(filter?: FindManyOptions): Promise<Partial<User[]>> {
     /* return users for admin panel */
-    return [];
+    const commonOpts: FindManyOptions = {
+      relations: { role: true },
+    };
+    const opts: FindManyOptions = filter || {};
+    return await User.find({ ...commonOpts, ...opts });
+  }
+  async findOneByLoginOrEmail(search: string): Promise<Partial<User>> {
+    return await User.findOne({
+      where: [{ login: search }, { email: search }],
+      relations: { role: true },
+    });
+  }
+  /*end repo*/
+
+  async update(id: ID, updateUserDto: UpdateUserDto): Promise<Partial<User>> {
+    /* check updateable fields for user */
+    return await User.save({ id: Number(id), ...updateUserDto });
   }
 
   async checkPassword(user, checkPassword): Promise<boolean> {
     return User.checkPassword(user, checkPassword);
-  }
-
-  /*repo*/
-  findOneById(id: number) {
-    return User.findOneBy({ id });
-  }
-
-  async findOneByLoginOrEmail(search: string): Promise<User> {
-    return await User.findOne({
-      where: [{ login: search }, { email: search }],
-      relations: ['role'],
-    });
-  }
-  /*end repo*/
-  update(id: ID, updateUserDto: UpdateUserDto) {
-    /* check rights */
-    /* check token */
-    /* check updateable fields for user */
-    /* update and return */
-    return `This action updates a #${id} user`;
   }
 }
