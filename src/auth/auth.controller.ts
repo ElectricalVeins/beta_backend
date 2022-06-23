@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Post } from '@nestjs/common';
 import { Public } from 'src/utils/decorator/public.decorator';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
@@ -21,16 +21,8 @@ export class AuthController {
   }
 
   @Public()
-  @Post('refresh')
-  async refresh() {
-    /* refresh token pair */
-    /* check refresh token */
-    /* create new token pair */
-    return {
-      pair: {
-        access: 'access',
-        refresh: 'refresh',
-      },
-    };
+  @Get('refresh')
+  async refresh(@Headers('Authorization') authHeader: string): Promise<any> {
+    return this.authService.refreshSession(authHeader);
   }
 }

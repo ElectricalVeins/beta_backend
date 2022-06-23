@@ -12,7 +12,6 @@ import { UserModule } from '../user/user.module';
   imports: [
     JwtModule.register({
       secret: config.get('app.jwt.secret'),
-      signOptions: { expiresIn: config.get('app.jwt.timeAccess') },
     }),
     PassportModule,
     UserModule,
