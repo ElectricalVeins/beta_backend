@@ -10,9 +10,7 @@ class ConfigurationExpert {
   }
 
   public get(propName: string, defaultValue?: any): any {
-    return this.localConfig.has(propName)
-      ? this.localConfig.get(propName)
-      : defaultValue;
+    return this.localConfig.has(propName) ? this.localConfig.get(propName) : defaultValue;
   }
 
   public getOrmConfig(isCli = false): any {
@@ -30,9 +28,7 @@ class ConfigurationExpert {
       migrations: this.get('db.cli.migrationsDir'),
       entities: this.get('db.cli.entitiesDir'),
     };
-    return isCli
-      ? new DataSource({ ...opts, ...cliOpts } as DataSourceOptions)
-      : opts;
+    return isCli ? new DataSource({ ...opts, ...cliOpts } as DataSourceOptions) : opts;
   }
 }
 

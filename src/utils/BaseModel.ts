@@ -16,7 +16,7 @@ export class BaseModel extends BaseEntity {
     return draft;
   }
 
-  toResource(): object {
+  toResource<T>(): T {
     const json: object = {};
     // TODO: refactor to functional style
     for (const [key, value] of Object.entries(this)) {
@@ -32,6 +32,6 @@ export class BaseModel extends BaseEntity {
         json[key] = value;
       }
     }
-    return json;
+    return json as unknown as T;
   }
 }

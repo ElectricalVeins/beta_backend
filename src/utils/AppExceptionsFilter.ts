@@ -23,12 +23,15 @@ export class AppExceptionsFilter implements ExceptionFilter {
 
     if (exception instanceof TypeORMError) {
       if (exception.message.includes('duplicate key value violates unique constraint')) {
-        errorDetails.message = 'Email already exists';
+        errorDetails.message = 'Email or login already exists';
         errorDetails.statusCode = 400;
       }
     }
 
     const responseBody: any = {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      message: exception?.message,
       timestamp: new Date().toISOString(),
       path: httpAdapter.getRequestUrl(ctx.getRequest()),
       ...errorDetails,
