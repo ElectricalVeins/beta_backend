@@ -24,6 +24,12 @@ export class UserController {
     return this.userService.findOneById(+id);
   }
 
+  @Get('currentuser')
+  @UseGuards(JwtAuthGuard)
+  getCurrentUser(): Promise<Partial<User>> | void {
+    // return this.userService.getCurrentUser();
+  }
+
   @Put(':id')
   // @Roles(RolesEnum.ADMIN, RolesEnum.USER, RolesEnum.PREMIUM)
   @UseGuards(JwtAuthGuard)

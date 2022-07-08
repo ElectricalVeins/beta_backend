@@ -4,7 +4,8 @@
         "jwt": {
             "secret": "super_secret",
             "timeAccess": "60m",
-            "timeRefresh": "7d"
+            "timeRefresh": "7d",
+            "maxAmount": 3
         },
         "security": {
             "salt": 10

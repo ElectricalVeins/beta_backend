@@ -6,6 +6,7 @@ import {
   Entity,
   Index,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -13,6 +14,8 @@ import * as bcrypt from 'bcrypt';
 import { Role, RolesEnum } from '../role/role.entity';
 import { BaseModel } from '../utils/BaseModel';
 import { config } from '../config/configuration-expert';
+import { AccessToken } from '../token-access/token-access.entity';
+import { RefreshToken } from '../token-refresh/token-refresh.entity';
 
 const SALT = config.get('app.security.salt');
 
@@ -48,14 +51,20 @@ export class User extends BaseModel {
   })
   status: UserStatusEnum;
 
-  @ManyToOne(() => Role, (role) => role.users, { nullable: false })
-  role: RolesEnum;
-
   @UpdateDateColumn()
   lastModified: Date;
 
   @CreateDateColumn()
   createDate: Date;
+
+  @ManyToOne(() => Role, (role) => role.users, { nullable: false })
+  role: RolesEnum;
+
+  @OneToMany(() => AccessToken, (token) => token.user)
+  accessTokens: AccessToken;
+
+  @OneToMany(() => RefreshToken, (token) => token.user)
+  refreshTokens: RefreshToken;
 
   @BeforeInsert()
   @BeforeUpdate()

@@ -7,6 +7,7 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { UserModule } from '../user/user.module';
+import { RefreshTokenModule } from '../token-refresh/token-refresh.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { UserModule } from '../user/user.module';
       secret: config.get('app.jwt.secret'),
     }),
     PassportModule,
+    RefreshTokenModule,
     UserModule,
   ],
   controllers: [AuthController],

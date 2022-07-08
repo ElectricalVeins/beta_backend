@@ -5,6 +5,7 @@ import { UserService } from '../user/user.service';
 import { JwtSignOptions } from '@nestjs/jwt/dist/interfaces';
 import { config } from '../config/configuration-expert';
 import { JwtPayload, JwtTokenTypes, UserAuth } from './types';
+import { RefreshTokenService } from '../token-refresh/token-refresh.service';
 
 /* TODO: SEPARATE SECRETS FOR TOKENS */
 
@@ -19,7 +20,11 @@ const JwtOptions: Record<JwtTokenTypes, JwtSignOptions> = {
 
 @Injectable()
 export class AuthService {
-  constructor(private jwtService: JwtService, private userService: UserService) {}
+  constructor(
+    private jwtService: JwtService,
+    private userService: UserService,
+    private refreshTokenService: RefreshTokenService
+  ) {}
 
   public validateUserOnSignUp(data: object): boolean {
     console.log('validate on signup spare func');
@@ -29,6 +34,7 @@ export class AuthService {
   public async signUp(dto: CreateUserDto): Promise<UserAuth> {
     const user = await this.userService.create(dto);
     const [access, refresh] = await this.signTokens({ userid: user.id, role: user.role['id'] });
+    await this.refreshTokenService.createRecord(refresh, user.id, false);
     return {
       user,
       tokens: { access, refresh },
@@ -47,6 +53,7 @@ export class AuthService {
     }
 
     const [access, refresh] = await this.signTokens({ userid: user.id, role: user.role['id'] });
+    await this.refreshTokenService.createRecord(refresh, user.id);
     return {
       user,
       tokens: { access, refresh },
@@ -54,13 +61,21 @@ export class AuthService {
   }
 
   public async refreshSession(authHeader: string): Promise<UserAuth> {
-    const [, refreshToken] = authHeader.split(' ');
+    const [type, refreshToken] = authHeader.split(' ');
+    if (type !== 'Bearer') {
+      throw new UnauthorizedException('Wrong token type');
+    }
     const { id } = await this.jwtService.verifyAsync(refreshToken);
     const user = await this.userService.findOneById(id);
     if (!user) {
       throw new NotFoundException();
     }
     const [access, refresh] = await this.signTokens({ userid: user.id, role: user.role['id'] });
+
+    const existingToken = await this.refreshTokenService.getRefreshToken(refreshToken, user.id);
+    await this.refreshTokenService.deleteRecord(existingToken);
+    await this.refreshTokenService.createRecord(refresh, user.id);
+
     return {
       user,
       tokens: { access, refresh },

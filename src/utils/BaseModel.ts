@@ -17,7 +17,7 @@ export class BaseModel extends BaseEntity {
   }
 
   toResource<T>(): T {
-    const json: object = {};
+    const resource: object = {};
     // TODO: refactor to functional style
     for (const [key, value] of Object.entries(this)) {
       if (this.hasOwnProperty(key)) {
@@ -26,12 +26,12 @@ export class BaseModel extends BaseEntity {
         }
         // TODO: get rid of this: make IGNORED_FIELDS invisible
         if (this[key] instanceof BaseModel) {
-          json[key] = this[key].toResource();
+          resource[key] = this[key].toResource();
           continue;
         }
-        json[key] = value;
+        resource[key] = value;
       }
     }
-    return json as unknown as T;
+    return resource as unknown as T;
   }
 }
