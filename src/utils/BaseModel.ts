@@ -1,8 +1,6 @@
 import { BaseEntity } from 'typeorm';
 
 export class BaseModel extends BaseEntity {
-  protected readonly IGNORED_FIELDS: string[] = [];
-
   public get type(): string {
     return this.constructor.name;
   }
@@ -16,23 +14,9 @@ export class BaseModel extends BaseEntity {
     return draft;
   }
 
-  /* get rid of this method - use class-transformer */
-  toResource<T>(): T {
-    const resource: object = {};
-    // TODO: refactor to functional style
-    for (const [key, value] of Object.entries(this)) {
-      if (this.hasOwnProperty(key)) {
-        if (this.IGNORED_FIELDS.includes(key) || key === 'IGNORED_FIELDS') {
-          continue;
-        }
-        // TODO: get rid of this: make IGNORED_FIELDS invisible
-        if (this[key] instanceof BaseModel) {
-          resource[key] = this[key].toResource();
-          continue;
-        }
-        resource[key] = value;
-      }
-    }
-    return resource as unknown as T;
+  mutate(updateDto: object): void {
+    Object.keys(updateDto).forEach((key) => {
+      this[key] = updateDto[key] || this[key];
+    });
   }
 }

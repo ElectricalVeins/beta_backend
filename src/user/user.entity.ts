@@ -10,6 +10,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Exclude } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
 import { Role, RolesEnum } from '../role/role.entity';
 import { BaseModel } from '../utils/BaseModel';
@@ -18,17 +19,16 @@ import { RefreshToken } from '../token-refresh/token-refresh.entity';
 
 const SALT = config.get('app.security.salt');
 
+// TODO: account activation by email
 export const enum UserStatusEnum {
   BLOCKED = 'BLOCKED',
-  ONLINE = 'ONLINE', // ??? extract to separate boolean field
+  ONLINE = 'ONLINE', // ??? extract to separate boolean field or to redis flag
   ACTIVE = 'ACTIVE', // after email activation
   INACTIVE = 'INACTIVE', // before email confirmation
 }
 
 @Entity()
 export class User extends BaseModel {
-  readonly IGNORED_FIELDS = ['password'];
-
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -37,6 +37,7 @@ export class User extends BaseModel {
   login: string;
 
   @Column()
+  @Exclude()
   password: string;
 
   @Index({ unique: true })
