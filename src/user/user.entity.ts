@@ -10,6 +10,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Exclude } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
 import { Role, RolesEnum } from '../role/role.entity';
 import { BaseModel } from '../utils/BaseModel';
@@ -27,8 +28,6 @@ export const enum UserStatusEnum {
 
 @Entity()
 export class User extends BaseModel {
-  readonly IGNORED_FIELDS = ['password'];
-
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -37,6 +36,7 @@ export class User extends BaseModel {
   login: string;
 
   @Column()
+  @Exclude()
   password: string;
 
   @Index({ unique: true })

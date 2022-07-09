@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { ClassSerializerInterceptor, Module } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from 'src/auth/auth.module';
@@ -8,7 +8,6 @@ import { config } from '../config/configuration-expert';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AppExceptionsFilter } from '../utils/AppExceptionsFilter';
-import { TransformInterceptor } from '../utils/response-transform.interceptor';
 import { RefreshTokenModule } from '../token-refresh/token-refresh.module';
 
 @Module({
@@ -22,7 +21,7 @@ import { RefreshTokenModule } from '../token-refresh/token-refresh.module';
     },
     {
       provide: APP_INTERCEPTOR,
-      useClass: TransformInterceptor,
+      useClass: ClassSerializerInterceptor,
     },
   ],
 })

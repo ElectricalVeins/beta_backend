@@ -37,17 +37,21 @@ export class UserService {
     const opts: FindManyOptions = filter || {};
     return await User.find({ ...commonOpts, ...opts });
   }
+
   async findOneByLoginOrEmail(search: string): Promise<Partial<User>> {
     return await User.findOne({
       where: [{ login: search }, { email: search }],
       relations: { role: true },
     });
   }
+
   /*end repo*/
 
   async update(id: ID, updateUserDto: UpdateUserDto): Promise<Partial<User>> {
-    /* check updateable fields for user */
-    return await User.save({ id: Number(id), ...updateUserDto });
+    const user = await this.findOneById(+id);
+    user.mutate(updateUserDto);
+    const upd = await user.save();
+    return upd;
   }
 
   async checkPassword(user, checkPassword): Promise<boolean> {
