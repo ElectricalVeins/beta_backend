@@ -51,7 +51,6 @@ export class AuthService {
     if (!isCorrectPassword) {
       throw new UnauthorizedException('Incorrect login or password');
     }
-
     const [access, refresh] = await this.signTokens({ userid: user.id, role: user.role['id'] });
     await this.refreshTokenService.createRecord(refresh, user.id);
     return {
@@ -65,6 +64,7 @@ export class AuthService {
     if (type !== 'Bearer') {
       throw new UnauthorizedException('Wrong token type');
     }
+    // TODO: if not verified token is expired - delete record. Use redis to store tokens? Write a sql func?
     const { id } = await this.jwtService.verifyAsync(refreshToken);
     const user = await this.userService.findOneById(id);
     if (!user) {
@@ -72,10 +72,15 @@ export class AuthService {
     }
     const [access, refresh] = await this.signTokens({ userid: user.id, role: user.role['id'] });
 
-    const existingToken = await this.refreshTokenService.getRefreshToken(refreshToken, user.id);
-    await this.refreshTokenService.deleteRecord(existingToken);
-    await this.refreshTokenService.createRecord(refresh, user.id);
-
+    const [existingRefreshToken] = await Promise.all([
+      this.refreshTokenService.getTokenRecordByValue(refreshToken, user.id),
+    ]);
+    await config.dataSource.transaction(async () => {
+      return Promise.all([
+        this.refreshTokenService.deleteRecord(existingRefreshToken),
+        this.refreshTokenService.createRecord(refresh, user.id),
+      ]);
+    });
     return {
       user,
       tokens: { access, refresh },

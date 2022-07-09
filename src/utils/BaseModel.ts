@@ -16,6 +16,7 @@ export class BaseModel extends BaseEntity {
     return draft;
   }
 
+  /* get rid of this method - use class-transformer */
   toResource<T>(): T {
     const resource: object = {};
     // TODO: refactor to functional style

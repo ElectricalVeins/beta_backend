@@ -1,20 +1,32 @@
 import * as localConfig from 'config';
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { DataSource, DataSourceOptions } from 'typeorm';
+import { Logger } from '@nestjs/common';
 
-class ConfigurationExpert {
-  private readonly localConfig: any;
+export class Configuration {
+  protected readonly localConfig: any;
+  protected _dataSource: DataSource;
 
   constructor() {
     this.localConfig = localConfig;
+  }
+
+  public set dataSource(ds: DataSource) {
+    this._dataSource = ds;
+  }
+
+  public get dataSource(): DataSource {
+    if (!this._dataSource) {
+      throw new Error('Driver not connected');
+    }
+    return this._dataSource;
   }
 
   public get(propName: string, defaultValue?: any): any {
     return this.localConfig.has(propName) ? this.localConfig.get(propName) : defaultValue;
   }
 
-  public getOrmConfig(isCli = false): any {
-    const opts: TypeOrmModuleOptions = {
+  public getOrmConfig(): object {
+    return {
       type: 'postgres',
       host: this.get('db.host'),
       port: this.get('db.port'),
@@ -24,13 +36,27 @@ class ConfigurationExpert {
       autoLoadEntities: this.get('db.autoLoadEntities', true),
       logging: this.get('db.logging', false),
     };
-    const cliOpts: Partial<TypeOrmModuleOptions> = {
-      migrations: this.get('db.cli.migrationsDir'),
-      entities: this.get('db.cli.entitiesDir'),
-    };
-    return isCli ? new DataSource({ ...opts, ...cliOpts } as DataSourceOptions) : opts;
   }
 }
 
-export const config: ConfigurationExpert = new ConfigurationExpert();
-export default config.getOrmConfig(true);
+export class ConfigurationExpert {
+  private readonly _config: Configuration;
+
+  constructor(configManager: Configuration) {
+    this._config = configManager;
+    ConfigurationExpert.initialize(configManager.getOrmConfig.bind(configManager))
+      .then(() => Logger.log('Driver connected', 'ConfigurationExpert'))
+      .catch((err) => Logger.error('Driver NOT connected' + err.toString(), 'ConfigurationExpert'));
+  }
+
+  private static async initialize(configGetter: () => object): Promise<void> {
+    configManager.dataSource = await new DataSource(configGetter() as DataSourceOptions).initialize();
+  }
+
+  get config(): Configuration {
+    return this._config;
+  }
+}
+
+const configManager = new Configuration();
+export const config: Configuration = new ConfigurationExpert(configManager).config;

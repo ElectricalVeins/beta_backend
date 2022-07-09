@@ -20,7 +20,7 @@ export class RefreshTokenService {
     });
   }
 
-  async getRefreshToken(token, userId): Promise<RefreshToken> {
+  async getTokenRecordByValue(token: string, userId: number): Promise<RefreshToken> {
     const tokenRecord = await RefreshToken.findOne({
       where: { user: { id: userId }, token },
     });
