@@ -21,6 +21,16 @@ export class Configuration {
     return this._dataSource;
   }
 
+  public getRedisConfig(): object {
+    const ttlInMinutes = this.get('cache.ttl');
+    const ttlInMs = ttlInMinutes * 60 * 1000;
+    return {
+      host: this.get('cache.host'),
+      port: this.get('cache.port'),
+      ttl: ttlInMs,
+    };
+  }
+
   public get(propName: string, defaultValue?: any): any {
     return this.localConfig.has(propName) ? this.localConfig.get(propName) : defaultValue;
   }

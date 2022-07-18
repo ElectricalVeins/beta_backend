@@ -1,4 +1,4 @@
-import { ClassSerializerInterceptor, Module } from '@nestjs/common';
+import { CacheModule, ClassSerializerInterceptor, Module } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from 'src/auth/auth.module';
@@ -11,7 +11,14 @@ import { AppExceptionsFilter } from '../utils/AppExceptionsFilter';
 import { RefreshTokenModule } from '../token-refresh/token-refresh.module';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(config.getOrmConfig()), RoleModule, UserModule, AuthModule, RefreshTokenModule],
+  imports: [
+    CacheModule.register(),
+    TypeOrmModule.forRoot(config.getOrmConfig()),
+    RoleModule,
+    UserModule,
+    AuthModule,
+    RefreshTokenModule,
+  ],
   controllers: [AppController],
   providers: [
     AppService,
