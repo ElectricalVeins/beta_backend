@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Put, Query, UseGuards } from '@nestjs/common';
 // import { Roles } from 'src/utils/decorator/roles.decorator';
 // import { RolesEnum } from 'src/role/role.entity';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -13,8 +13,8 @@ export class UserController {
   @Get()
   // @Roles(RolesEnum.ADMIN, RolesEnum.USER, RolesEnum.PREMIUM)
   @UseGuards(JwtAuthGuard)
-  findAll(): Promise<Partial<User[]>> {
-    return this.userService.findAll();
+  findAll(@Query() opts: object): Promise<Partial<User[]>> {
+    return this.userService.findAll(opts);
   }
 
   @Get(':id')
