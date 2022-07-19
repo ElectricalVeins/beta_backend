@@ -16,7 +16,7 @@ export class Configuration {
 
   public get dataSource(): DataSource {
     if (!this._dataSource) {
-      throw new Error('Driver not connected');
+      throw new Error('Driver NOT connected');
     }
     return this._dataSource;
   }
@@ -54,13 +54,13 @@ export class ConfigurationExpert {
 
   constructor(configManager: Configuration) {
     this._config = configManager;
-    ConfigurationExpert.initialize(configManager.getOrmConfig.bind(configManager))
+    ConfigurationExpert.initialize(configManager.getOrmConfig.bind(configManager), configManager)
       .then(() => Logger.log('Driver connected', 'ConfigurationExpert'))
       .catch((err) => Logger.error('Driver NOT connected' + err.toString(), 'ConfigurationExpert'));
   }
 
-  private static async initialize(configGetter: () => object): Promise<void> {
-    configManager.dataSource = await new DataSource(configGetter() as DataSourceOptions).initialize();
+  private static async initialize<T extends Configuration>(configGetter: () => object, manager: T): Promise<void> {
+    manager.dataSource = await new DataSource(configGetter() as DataSourceOptions).initialize();
   }
 
   get config(): Configuration {

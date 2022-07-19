@@ -28,6 +28,7 @@
         "runMigrations": false,
         "logging": true,
         "cli":{
+            "autoLoadEntities": false,
             "entitiesDir": ["src/**/*.entity.ts"],
             "migrationsDir": ["src/migrations/**.ts"]
         }

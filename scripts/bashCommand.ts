@@ -1,12 +1,15 @@
-import { spawn } from 'child_process';
+import { spawn, StdioOptions } from 'child_process';
 
-export default async function bashCommand(
-  command: string,
-  args?: string[],
-  errorMessage?: string
-): Promise<void> {
+type bashOpts = {
+  args?: string[];
+  errorMessage?: string;
+  io?: StdioOptions | undefined;
+};
+
+export default async function bashCommand(command: string, opts?: bashOpts): Promise<void> {
+  const { io = 'inherit', errorMessage, args } = opts;
   return new Promise((resolve, reject) => {
-    const cli = spawn(command, args, { shell: true, stdio: 'inherit' });
+    const cli = spawn(command, args, { shell: true, stdio: io });
 
     // cli.stdout.on('data', (data) => { console.log(data.toString()) })
     // cli.stderr.on('data', (data) => { console.log(data.toString()) })
