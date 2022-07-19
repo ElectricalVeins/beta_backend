@@ -1,36 +1,46 @@
 {
-    "app": {
-        "port": 3000,
-        "jwt": {
-            "secret": "super_secret",
-            "timeAccess": "30m",
-            "timeRefresh": "30d",
-            "maxAmount": 3
-        },
-        "security": {
-            "salt": 10
-        },
-        "logs": {
-            "level": "log"
-        }
+  "app": {
+    "port": 3000,
+    "jwt": {
+      "secret": "super_secret",
+      "timeAccess": "30m",
+      "timeRefresh": "30d",
+      "maxAmount": 3
     },
-    "cache": {
-        "host": "localhost",
-        "port": 6379,
-        "ttl": "30"
+    "security": {
+      "salt": 10
     },
-    "db": {
-        "host": "localhost",
-        "port": 5432,
-        "user": "user",
-        "password": "password",
-        "name": "autodb",
-        "runMigrations": false,
-        "logging": true,
-        "cli":{
-            "autoLoadEntities": false,
-            "entitiesDir": ["src/**/*.entity.ts"],
-            "migrationsDir": ["src/migrations/**.ts"]
-        }
+    "logs": {
+      "level": "log"
+    },
+    "email": {
+      "host": "smtp.ethereal.email",
+      "port": 587,
+      "secure": false,
+      "auth": {}
     }
+  },
+  "redis": {
+    "host": "localhost",
+    "port": 6379,
+    "ttl": "30"
+  },
+  "db": {
+    "host": "localhost",
+    "port": 5432,
+    "user": "user",
+    "password": "password",
+    "name": "autodb",
+    "runMigrations": false,
+    "logging": true,
+    "cli": {
+      "autoLoadEntities": false,
+      "entitiesDir": [
+        "src/**/*.entity.ts"
+      ],
+      "migrationsDir": [
+        "src/migrations/**.ts"
+      ]
+    }
+  }
 }
