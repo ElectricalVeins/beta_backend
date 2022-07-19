@@ -1,5 +1,15 @@
 import { ArgumentMetadata, BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
-import { FindManyOptions, FindOptionsOrder, FindOptionsWhere } from 'typeorm';
+import {
+  FindManyOptions,
+  FindOptionsOrder,
+  FindOptionsWhere,
+  LessThan,
+  LessThanOrEqual,
+  MoreThan,
+  MoreThanOrEqual,
+} from 'typeorm';
+import { BaseModel } from './BaseModel';
+import { deleteFirstCharInString } from './helpers';
 
 type RawQuery = {
   sort: string;
@@ -20,13 +30,21 @@ export enum SearchOperators {
   LTE = '<=',
 }
 
-// FindManyOptions, FindOptionsWhere, FindOptionsOrder
+export const MAX_PAGE_SIZE = 500;
+export const DEFAULT_PAGE_SIZE = 50;
 
-const MAX_PAGE_SIZE = 500;
-const DEFAULT_PAGE_SIZE = 50;
+const operators: string[] = Object.values(SearchOperators);
 
 @Injectable()
-class QueryPipe implements PipeTransform {
+class QueryPipe<Model = typeof BaseModel> implements PipeTransform {
+  private readonly model: Model;
+  private readonly fields: string[];
+
+  constructor(model: Model, fields: string[]) {
+    this.model = model;
+    this.fields = fields;
+  }
+
   transform(value: any, metadata: ArgumentMetadata) {
     const { type } = metadata;
     if (type === 'query') {
@@ -41,18 +59,18 @@ class QueryPipe implements PipeTransform {
     }
     const parsedQuery: any = {};
     const { sort, page, pageSize, filter, responseFields, relations } = rawQuery;
-    if (sort) {
-      parsedQuery.sort = this.convertSort(sort);
+    if (sort && this.fields.length) {
+      parsedQuery.order = this.convertSort(sort);
     }
     if (page || pageSize) {
       const { take, skip } = this.convertPagination({ page, pageSize });
       parsedQuery.take = take;
       parsedQuery.skip = skip;
     }
-    if (filter) {
+    if (filter && this.fields.length) {
       parsedQuery.where = this.convertFilter(filter);
     }
-    if (relations || responseFields) {
+    if ((relations || responseFields) && this.fields.length) {
       // TODO: parse select fields and joins
     }
     parsedQuery.original = rawQuery;
@@ -76,54 +94,85 @@ class QueryPipe implements PipeTransform {
     };
   }
 
+  private getOperator(rawFilterValue): string {
+    for (const operator of operators) {
+      if (rawFilterValue.includes(operator)) {
+        return operator;
+      }
+    }
+  }
+
+  private parseOperator(op: string, rawFilterValue: string): [string, any] {
+    switch (op) {
+      case SearchOperators.EQUAL: {
+        const [key, value] = rawFilterValue.split(SearchOperators.EQUAL);
+        if (value === '') {
+          throw new BadRequestException(`Provider value for '${SearchOperators.EQUAL}' operator`);
+        }
+        return [key, value];
+      }
+      case SearchOperators.IN: {
+        const [key, value] = rawFilterValue.split(SearchOperators.IN);
+        // TODO: parse commas but inside square brackets
+        const values = value.split('|');
+        if (values.length === 0) {
+          throw new BadRequestException(`Provider correct value for '${SearchOperators.IN}' operator`);
+        }
+        return [key, values];
+      }
+      case SearchOperators.GT: {
+        const [key, value] = rawFilterValue.split(SearchOperators.GT);
+        if (value === '') {
+          throw new BadRequestException(`Provider value for '${SearchOperators.GT}' operator`);
+        }
+        return [key, MoreThan(value)];
+      }
+      case SearchOperators.GTE: {
+        const [key, value] = rawFilterValue.split(SearchOperators.GTE);
+        if (value === '') {
+          throw new BadRequestException(`Provider value for '${SearchOperators.GTE}' operator`);
+        }
+        return [key, MoreThanOrEqual(value)];
+      }
+      case SearchOperators.LT: {
+        const [key, value] = rawFilterValue.split(SearchOperators.LT);
+        if (value === '') {
+          throw new BadRequestException(`Provider value for '${SearchOperators.LT}' operator`);
+        }
+        return [key, LessThan(value)];
+      }
+      case SearchOperators.LTE: {
+        const [key, value] = rawFilterValue.split(SearchOperators.LTE);
+        if (value === '') {
+          throw new BadRequestException(`Provider value for '${SearchOperators.LTE}' operator`);
+        }
+        return [key, LessThanOrEqual(value)];
+      }
+      case SearchOperators.NOT_EQUAL: {
+        throw new BadRequestException('Not implemented');
+      }
+      default: {
+        throw new BadRequestException('Unknown operator supplied');
+      }
+    }
+  }
+
   private convertFilter(rawFilter: string): FindOptionsWhere<unknown> {
     const rawFilterObject = this.separateRaw(rawFilter);
-    const operators: string[] = Object.values(SearchOperators);
-    // TODO: parse filter | refactor code
-    return rawFilterObject.map((rawFilterValue) => {
-      let op = '';
-      for (const operator of operators) {
-        if (rawFilterValue.includes(operator)) {
-          op = operator;
-          break;
+    const filters = rawFilterObject
+      .map((rawFilterValue) => {
+        const op = this.getOperator(rawFilterValue);
+        const [field, value] = this.parseOperator(op, rawFilterValue);
+        if (this.fields.includes(field)) {
+          return { [field]: value };
         }
-      }
-      switch (op) {
-        case SearchOperators.EQUAL: {
-          const [key, value] = rawFilterValue.split(SearchOperators.EQUAL);
-          if (value === '') {
-            throw new BadRequestException(`Provider value for '${SearchOperators.EQUAL}' operator`);
-          }
-          return { [key]: value };
-        }
-        case SearchOperators.IN: {
-          const [key, value] = rawFilterValue.split(SearchOperators.IN);
-          // TODO: parse commas but inside square brackets
-          const values = value.split(',');
-          if (values.length === 0) {
-            throw new BadRequestException(`Provider correct value for '${SearchOperators.IN}' operator`);
-          }
-          return { [key]: [...values] };
-        }
-        case SearchOperators.GT: {
-          break;
-        }
-        case SearchOperators.GTE: {
-          break;
-        }
-        case SearchOperators.LT: {
-          break;
-        }
-        case SearchOperators.LTE: {
-          break;
-        }
-        case SearchOperators.NOT_EQUAL: {
-          break;
-        }
-        default: {
-        }
-      }
-    });
+        return null;
+      })
+      .filter(Boolean);
+    if (filters.length) {
+      return filters;
+    }
+    return null;
   }
 
   private convertSort(sort: string): FindOptionsOrder<unknown> {
@@ -133,15 +182,26 @@ class QueryPipe implements PipeTransform {
           return;
         }
         const isDesc = sortCriteria[0] === '-';
-        return {
-          [isDesc ? sortCriteria.slice(1) : sortCriteria]: isDesc ? 'desc' : 'asc',
-        };
+        const key = isDesc ? deleteFirstCharInString(sortCriteria) : sortCriteria;
+        if (this.fields.includes(key)) {
+          return {
+            [key]: isDesc ? 'desc' : 'asc',
+          };
+        }
+        return null;
       })
-      .filter(Boolean);
+      .filter(Boolean)
+      .reduce(
+        (sortCriteria, criterias) => ({
+          ...criterias,
+          ...sortCriteria,
+        }),
+        {}
+      );
   }
 
   private separateRaw(queryValue: string): string[] {
-    return queryValue.split(',');
+    return queryValue.split(',').map((v) => v.trim());
   }
 }
 

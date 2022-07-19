@@ -26,11 +26,7 @@
         "password": "password",
         "name": "autodb",
         "runMigrations": false,
-        "logging": [
-            "warn",
-            "error",
-            "info"
-        ],
+        "logging": true,
         "cli":{
             "entitiesDir": ["src/**/*.entity.ts"],
             "migrationsDir": ["src/migrations/**.ts"]

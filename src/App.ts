@@ -2,7 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app/app.module';
 import { config } from './config/configuration-expert';
-import QueryPipe from './utils/QueryPipe';
 
 export class App {
   private server: INestApplication;
@@ -19,8 +18,7 @@ export class App {
         transform: true,
         whitelist: true,
         stopAtFirstError: false,
-      }),
-      new QueryPipe()
+      })
     );
     server.useLogger(config.get('app.logs.level'));
     return new App(server);
