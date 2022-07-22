@@ -1,5 +1,5 @@
 ## Dependencies
-- Linux (Ubuntu)
+- Linux (Ubuntu 20.04 or newer)
 - Docker
 - Docker-compose
 - Node 16
@@ -7,15 +7,22 @@
 ## Installation
 
 ```bash
+# 1. Install dependencies
 $ yarn install
+
+# 2. Prepare environment
+$ yarn run env:local:start
+
+# 2.1 (Optionally) Edit configuration
+
+# 3. Run migrations
+yarn run typeorm:run
 ```
 
 ## Running the app
 
 ```bash
-# Prepare environment
-$ yarn run env:local:start
-
+# Start project in selected mode
 # development
 $ yarn run start
 
