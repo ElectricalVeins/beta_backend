@@ -5,12 +5,14 @@ import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { QueryParser } from '../utils/decorator/QueryParser';
 
+const UserQueryParser = (): MethodDecorator => QueryParser(User, ['id', 'login', 'status']);
+
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  @QueryParser(User, ['id', 'login', 'status'])
+  @UserQueryParser()
   @UseGuards(JwtAuthGuard)
   findAll(@Query() opts: object): Promise<Partial<User[]>> {
     return this.userService.findAll(opts);

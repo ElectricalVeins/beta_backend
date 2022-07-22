@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { ID } from 'src/types';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './user.entity';
+import { User, UserStatusEnum } from './user.entity';
 import { RolesEnum } from '../role/role.entity';
 import { RoleService } from '../role/role.service';
 import { FindManyOptions } from 'typeorm';
@@ -51,6 +51,20 @@ export class UserService {
     const user = await this.findOneById(+id);
     user.mutate(updateUserDto);
     return user.save();
+  }
+
+  async updateUserStatus(id: ID, status: UserStatusEnum): Promise<Partial<User>> {
+    const user = await this.findOneById(+id);
+    user.mutate({ status });
+    return user.save();
+  }
+
+  async activateUser(id: ID): Promise<Partial<User>> {
+    return this.updateUserStatus(id, UserStatusEnum.ACTIVE);
+  }
+
+  async blockUser(id: ID): Promise<Partial<User>> {
+    return this.updateUserStatus(id, UserStatusEnum.BLOCKED);
   }
 
   async checkPassword(user, checkPassword): Promise<boolean> {
