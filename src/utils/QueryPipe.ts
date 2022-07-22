@@ -58,7 +58,7 @@ class QueryPipe<Model = typeof BaseModel> implements PipeTransform {
       throw new BadRequestException('Invalid query supplied');
     }
     const parsedQuery: any = {};
-    const { sort, page, pageSize, filter, responseFields, relations } = rawQuery;
+    const { page = 1, pageSize = DEFAULT_PAGE_SIZE, sort, filter, responseFields, relations } = rawQuery;
     if (sort && this.fields.length) {
       parsedQuery.order = this.convertSort(sort);
     }
@@ -77,7 +77,10 @@ class QueryPipe<Model = typeof BaseModel> implements PipeTransform {
     return parsedQuery;
   }
 
-  private convertPagination(pagination: { page: string; pageSize: string }): { take: number; skip: number } {
+  private convertPagination(pagination: { page: string | number; pageSize: string | number }): {
+    take: number;
+    skip: number;
+  } {
     const { page, pageSize } = pagination;
     const parsedSize = Number(pageSize || DEFAULT_PAGE_SIZE);
     const skipPage = Number(page || 1);
