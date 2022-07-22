@@ -33,16 +33,17 @@ export class TokenService {
     return this.jwtService.signAsync({ id: user.id }, JwtOptions.REFRESH);
   }
 
-  public async signTokens(payload: JwtPayload): Promise<[string, string]> {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  public async signTokens(payload: JwtPayload): Promise<[[string, string], () => unknown]> {
     /* TODO: Implement the whitelist of tokens. To increase the auth secureness */
     const [access, refresh] = await Promise.all([
       this.jwtService.signAsync(payload, JwtOptions[JwtTokenTypes.ACCESS]),
       this.jwtService.signAsync(payload, JwtOptions[JwtTokenTypes.REFRESH]),
     ]);
     const accessPayload = await this.jwtService.verifyAsync(access, JwtOptions[JwtTokenTypes.ACCESS]);
-    this.cacheManager.set(createKey(payload.userid, accessPayload['iat']), access, {
+    const setCache = this.cacheManager.set.bind(this, createKey(payload.userid, accessPayload['iat']), access, {
       ttl: getSecondsFromConfig(JwtOptions.ACCESS.expiresIn as string),
     });
-    return [access, refresh];
+    return [[access, refresh], setCache];
   }
 }
