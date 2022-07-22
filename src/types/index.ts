@@ -16,4 +16,5 @@ export type UserAuth = {
 export enum JwtTokenTypes {
   ACCESS = 'ACCESS',
   REFRESH = 'REFRESH',
+  EMAIL = 'EMAIL',
 }

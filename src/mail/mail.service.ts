@@ -32,9 +32,9 @@ export class MailService implements OnModuleInit {
         user
       )}</h1>`,
     };
-    const res = await this.sendEmail(message);
-    // eslint-disable-next-line no-console
-    console.log(`${Date.now()}|MailService:`, nm.getTestMessageUrl(res));
+    this.sendEmail(message)
+      .then((res) => console.log(`${Date.now()}|MailService:`, nm.getTestMessageUrl(res)))
+      .catch((err) => Logger.error(err.message, 'MailService'));
   }
 
   private async sendEmail(message): Promise<any> {

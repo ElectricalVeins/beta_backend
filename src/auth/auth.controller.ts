@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Headers, Post } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Post, Query, UseGuards } from '@nestjs/common';
 import { Public } from 'src/utils/decorator/public.decorator';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { LoginUserDto } from '../user/dto/login-user.dto';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -24,5 +25,11 @@ export class AuthController {
   @Get('refresh')
   async refresh(@Headers('Authorization') authHeader: string): Promise<any> {
     return this.authService.refreshSession(authHeader);
+  }
+
+  @Get('activate')
+  @UseGuards(JwtAuthGuard)
+  async activate(@Query('token') token: string): Promise<any> {
+    return this.authService.activateUser(token);
   }
 }

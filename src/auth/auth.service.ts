@@ -5,7 +5,7 @@ import { CreateUserDto } from '../user/dto/create-user.dto';
 import { UserService } from '../user/user.service';
 import { RefreshTokenService } from '../token-refresh/token-refresh.service';
 import { MailService } from '../mail/mail.service';
-import { JwtTokenTypes, UserAuth } from '../types';
+import { JwtPayload, JwtTokenTypes, UserAuth } from '../types';
 
 /* TODO: SEPARATE SECRETS FOR TOKENS */
 
@@ -50,6 +50,11 @@ export class AuthService {
       user,
       tokens: { access, refresh },
     };
+  }
+
+  public async activateUser(token: string): Promise<any> {
+    const { userid }: Partial<JwtPayload> = await this.tokenService.verifyConfirmEmailToken(token);
+    return await this.userService.activateUser(userid);
   }
 
   public async refreshSession(authHeader: string): Promise<UserAuth> {

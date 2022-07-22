@@ -10,6 +10,9 @@ export const JwtOptions: Record<JwtTokenTypes, JwtSignOptions> = {
   [JwtTokenTypes.REFRESH]: {
     expiresIn: config.get('app.jwt.timeRefresh'),
   },
+  [JwtTokenTypes.EMAIL]: {
+    expiresIn: config.get('app.jwt.timeAccess'),
+  },
 };
 
 @Injectable()
@@ -17,7 +20,7 @@ export class TokenService {
   constructor(private jwtService: JwtService) {}
 
   public async verifyConfirmEmailToken(token): Promise<any> {
-    return this.verifyToken(token, JwtTokenTypes.REFRESH);
+    return this.verifyToken(token, JwtTokenTypes.EMAIL);
   }
 
   public async verifyToken(token: string, type: JwtTokenTypes): Promise<any> {
