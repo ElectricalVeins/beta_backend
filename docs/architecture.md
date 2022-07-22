@@ -7,5 +7,4 @@ Each layer performs a specific role in application.
 - controller
 - service
 - repository (TBD)
-- resource (partially TBD)
 - model
