@@ -11,7 +11,7 @@ export class MailService implements OnModuleInit {
   constructor(private tokenService: TokenService) {}
 
   async onModuleInit(): Promise<void> {
-    const { user, pass } = await nm.createTestAccount('beta-server');
+    const { user, pass } = await nm.createTestAccount();
     this.transport = nm.createTransport({
       host: config.get('app.email.host'),
       port: config.get('app.email.port'),
@@ -33,7 +33,8 @@ export class MailService implements OnModuleInit {
       )}</h1>`,
     };
     const res = await this.sendEmail(message);
-    Logger.log(nm.getTestMessageUrl(res));
+    // eslint-disable-next-line no-console
+    console.log(`${Date.now()}|MailService:`, nm.getTestMessageUrl(res));
   }
 
   private async sendEmail(message): Promise<any> {

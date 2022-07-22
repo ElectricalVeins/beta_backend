@@ -9,7 +9,7 @@ import { config } from '../config/configuration-expert';
       secret: config.get('app.jwt.secret'),
     }),
   ],
-  providers: [],
+  providers: [TokenService],
   exports: [TokenService],
 })
 export class TokenModule {}
