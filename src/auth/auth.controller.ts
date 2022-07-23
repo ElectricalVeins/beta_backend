@@ -23,8 +23,8 @@ export class AuthController {
 
   @Public()
   @Get('refresh')
-  async refresh(@Headers('Authorization') authHeader: string): Promise<any> {
-    return this.authService.refreshSession(authHeader);
+  async refresh(@Query('auth') refreshToken: string): Promise<any> {
+    return this.authService.refreshSession(refreshToken);
   }
 
   @Get('activate')

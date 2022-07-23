@@ -19,7 +19,6 @@ import { RefreshToken } from '../token-refresh/token-refresh.entity';
 
 const SALT = config.get('app.security.salt');
 
-// TODO: account activation by email
 export const enum UserStatusEnum {
   BLOCKED = 'BLOCKED',
   ONLINE = 'ONLINE', // ??? extract to separate boolean field or to redis flag

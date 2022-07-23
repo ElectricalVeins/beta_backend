@@ -7,8 +7,6 @@ import { RefreshTokenService } from '../token-refresh/token-refresh.service';
 import { MailService } from '../mail/mail.service';
 import { JwtPayload, JwtTokenTypes, UserAuth } from '../types';
 
-/* TODO: SEPARATE SECRETS FOR TOKENS */
-
 @Injectable()
 export class AuthService {
   constructor(
@@ -59,11 +57,7 @@ export class AuthService {
     return await this.userService.activateUser(userid);
   }
 
-  public async refreshSession(authHeader: string): Promise<UserAuth> {
-    const [type, refreshToken] = authHeader.split(' ');
-    if (type !== 'Bearer') {
-      throw new UnauthorizedException('Wrong token type');
-    }
+  public async refreshSession(refreshToken: string): Promise<UserAuth> {
     const { id } = await this.tokenService.verifyToken(refreshToken, JwtTokenTypes.REFRESH);
     const user = await this.userService.findOneById(id);
     if (!user) {

@@ -8,12 +8,15 @@ import { createKey, getSecondsFromConfig } from '../utils/helpers';
 export const JwtOptions: Record<JwtTokenTypes, JwtSignOptions> = {
   [JwtTokenTypes.ACCESS]: {
     expiresIn: config.get('app.jwt.timeAccess'),
+    secret: config.get('app.jwt.secretAccess'),
   },
   [JwtTokenTypes.REFRESH]: {
     expiresIn: config.get('app.jwt.timeRefresh'),
+    secret: config.get('app.jwt.secretRefresh'),
   },
   [JwtTokenTypes.EMAIL]: {
     expiresIn: config.get('app.jwt.timeAccess'),
+    secret: config.get('app.jwt.secretAccess'),
   },
 };
 
