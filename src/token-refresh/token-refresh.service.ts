@@ -1,12 +1,13 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { RefreshToken } from './token-refresh.entity';
+import { TokenService } from '../jwt-token/jwt-token.service';
 import { config } from '../config/configuration-expert';
 
 @Injectable()
 export class RefreshTokenService {
   protected tokensMaxAllowedAmount: number;
 
-  constructor() {
+  constructor(private tokenService: TokenService) {
     this.tokensMaxAllowedAmount = config.get('app.jwt.maxAmount');
   }
 
@@ -14,8 +15,10 @@ export class RefreshTokenService {
     if (isCheckAmount) {
       await this.checkExistingRefreshTokensAmount(userId);
     }
+    const { exp } = this.tokenService.getTokenPayload(token);
     return RefreshToken.save({
       token,
+      expired: exp,
       user: { id: userId },
     });
   }

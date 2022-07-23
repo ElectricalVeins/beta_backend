@@ -64,7 +64,6 @@ export class AuthService {
     if (type !== 'Bearer') {
       throw new UnauthorizedException('Wrong token type');
     }
-    // TODO: if not verified token is expired - delete record. Use redis to store tokens? Write a sql func?
     const { id } = await this.tokenService.verifyToken(refreshToken, JwtTokenTypes.REFRESH);
     const user = await this.userService.findOneById(id);
     if (!user) {

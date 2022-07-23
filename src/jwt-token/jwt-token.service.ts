@@ -17,6 +17,10 @@ export const JwtOptions: Record<JwtTokenTypes, JwtSignOptions> = {
   },
 };
 
+type AccessTokenString = string;
+type RefreshTokenString = string;
+type AccessTokenCacheSetter = () => unknown;
+
 @Injectable()
 export class TokenService {
   constructor(private jwtService: JwtService, @Inject(CACHE_MANAGER) private cacheManager: Cache) {}
@@ -33,15 +37,20 @@ export class TokenService {
     return this.jwtService.signAsync({ id: user.id }, JwtOptions.REFRESH);
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  public async signTokens(payload: JwtPayload): Promise<[[string, string], () => unknown]> {
-    /* TODO: Implement the whitelist of tokens. To increase the auth secureness */
+  public getTokenPayload(token: string): { iat; exp } {
+    const { payload } = this.jwtService.decode(token, { complete: true }) as any;
+    return payload;
+  }
+
+  public async signTokens(
+    payload: JwtPayload
+  ): Promise<[[AccessTokenString, RefreshTokenString], AccessTokenCacheSetter]> {
     const [access, refresh] = await Promise.all([
       this.jwtService.signAsync(payload, JwtOptions[JwtTokenTypes.ACCESS]),
       this.jwtService.signAsync(payload, JwtOptions[JwtTokenTypes.REFRESH]),
     ]);
-    const accessPayload = await this.jwtService.verifyAsync(access, JwtOptions[JwtTokenTypes.ACCESS]);
-    const setCache = this.cacheManager.set.bind(this, createKey(payload.userid, accessPayload['iat']), access, {
+    const { iat } = this.getTokenPayload(access);
+    const setCache = this.cacheManager.set.bind(this, createKey(payload.userid, iat), access, {
       ttl: getSecondsFromConfig(JwtOptions.ACCESS.expiresIn as string),
     });
     return [[access, refresh], setCache];
