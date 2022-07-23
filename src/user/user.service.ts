@@ -42,8 +42,8 @@ export class UserService {
 
   /*end repo*/
 
-  async update(id: ID, updateUserDto: UpdateUserDto): Promise<Partial<User>> {
-    const user = await this.findOneById(+id);
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<Partial<User>> {
+    const user = await this.findOneById(id);
     user.mutate(updateUserDto);
     return user.save();
   }

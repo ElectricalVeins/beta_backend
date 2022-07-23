@@ -1,9 +1,12 @@
-import { Body, Controller, Get, Param, Put, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Put, Query, UseGuards, Request, BadRequestException } from '@nestjs/common';
 import { User } from './user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { QueryParser } from '../utils/decorator/QueryParser';
+import { CurrentUser } from '../utils/decorator/CurrentUser';
+import { RolesEnum } from '../role/role.entity';
+import { JwtPayload } from '../types';
 
 const UserQueryParser = (): MethodDecorator =>
   QueryParser(User, {
@@ -18,8 +21,15 @@ export class UserController {
   @Get()
   @UserQueryParser()
   @UseGuards(JwtAuthGuard)
-  findAll(@Query() opts: object): Promise<Partial<User[]>> {
+  findAll(@Query() opts: object, @Request() r): Promise<Partial<User[]>> {
+    console.log(r);
     return this.userService.findAll(opts);
+  }
+
+  @Get('currentuser')
+  @UseGuards(JwtAuthGuard)
+  getCurrentUser(@CurrentUser() user: JwtPayload): Promise<Partial<User>> | void {
+    return this.userService.findOneById(Number(user.userid));
   }
 
   @Get(':id')
@@ -28,16 +38,17 @@ export class UserController {
     return this.userService.findOneById(+id);
   }
 
-  @Get('currentuser')
-  @UseGuards(JwtAuthGuard)
-  getCurrentUser(): Promise<Partial<User>> | void {
-    // return this.userService.getCurrentUser();
-  }
-
   @Put(':id')
   @UseGuards(JwtAuthGuard)
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto): Promise<Partial<User>> {
-    /* check user can update only himself */
-    return this.userService.update(+id, updateUserDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @CurrentUser() user: JwtPayload
+  ): Promise<Partial<User>> {
+    /*TODO: create middleware to check admin rights*/
+    if (user.role !== RolesEnum.ADMIN && id !== user.userid) {
+      throw new BadRequestException('Not enough rights');
+    }
+    return this.userService.update(Number(id), updateUserDto);
   }
 }

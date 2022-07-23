@@ -2,7 +2,7 @@
   "app": {
     "port": 3000,
     "jwt": {
-      "timeAccess": "30m",
+      "timeAccess": "300m",
       "secretAccess": "access_secret_dev",
       "timeRefresh": "30d",
       "secretRefresh": "access_secret_dev",
