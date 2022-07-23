@@ -11,7 +11,7 @@ export class RefreshToken extends BaseModel {
   token: string;
 
   @Column({ nullable: false, type: 'int' })
-  expired: string;
+  expired: number;
 
   @ManyToOne(() => User, (user) => user.refreshTokens, { onDelete: 'CASCADE' })
   user: User;

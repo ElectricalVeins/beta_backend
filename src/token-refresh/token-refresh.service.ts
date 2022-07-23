@@ -1,4 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { DeleteResult, LessThan } from 'typeorm';
 import { RefreshToken } from './token-refresh.entity';
 import { TokenService } from '../jwt-token/jwt-token.service';
 import { config } from '../config/configuration-expert';
@@ -31,6 +32,11 @@ export class RefreshTokenService {
       throw new UnauthorizedException('Invalid token');
     }
     return tokenRecord;
+  }
+
+  async deleteExpiredTokens(): Promise<DeleteResult> {
+    const currentSecond = Number.parseInt(String(Date.now() / 1000));
+    return RefreshToken.delete({ expired: LessThan(currentSecond) });
   }
 
   async checkExistingRefreshTokensAmount(userId: number): Promise<void> {
