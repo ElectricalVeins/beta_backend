@@ -5,7 +5,11 @@ import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { QueryParser } from '../utils/decorator/QueryParser';
 
-const UserQueryParser = (): MethodDecorator => QueryParser(User, ['id', 'login', 'status']);
+const UserQueryParser = (): MethodDecorator =>
+  QueryParser(User, {
+    fields: ['id', 'login', 'email', 'status', 'lastModified', 'createDate'],
+    relations: ['role'],
+  });
 
 @Controller('users')
 export class UserController {

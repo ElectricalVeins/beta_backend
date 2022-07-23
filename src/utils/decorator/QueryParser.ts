@@ -1,7 +1,7 @@
 import { UsePipes } from '@nestjs/common';
 import { BaseModel } from '../BaseModel';
-import QueryPipe from '../QueryPipe';
+import QueryPipe, { QueryPipeOpts } from '../QueryPipe';
 
-export function QueryParser<M = typeof BaseModel>(model: M, fields: string[]): MethodDecorator {
-  return UsePipes(new QueryPipe(model, fields));
+export function QueryParser<M = typeof BaseModel>(model: M, opts: QueryPipeOpts): MethodDecorator {
+  return UsePipes(new QueryPipe(model, opts));
 }

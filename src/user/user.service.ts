@@ -30,12 +30,7 @@ export class UserService {
   }
 
   async findAll(filter?: FindManyOptions): Promise<Partial<User[]>> {
-    /* return users for admin panel */
-    const commonOpts: FindManyOptions = {
-      relations: { role: true },
-    };
-    const opts: FindManyOptions = filter || {};
-    return await User.find({ ...commonOpts, ...opts });
+    return await User.find(filter);
   }
 
   async findOneByLoginOrEmail(search: string): Promise<Partial<User>> {

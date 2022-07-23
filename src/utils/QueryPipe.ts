@@ -7,6 +7,7 @@ import {
   LessThanOrEqual,
   MoreThan,
   MoreThanOrEqual,
+  Not as NotEquals,
 } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { deleteFirstCharInString } from './helpers';
@@ -20,10 +21,15 @@ type RawQuery = {
   relations: string;
 };
 
+export type QueryPipeOpts = {
+  fields: string[];
+  relations?: string[];
+};
+
 export enum SearchOperators {
   EQUAL = '==',
-  NOT_EQUAL = '!=',
-  IN = '->',
+  NOT_EQUAL = '!==',
+  IN = '->', // vertical line separated values ("|")
   GT = '>',
   GTE = '>=',
   LT = '<',
@@ -39,10 +45,13 @@ const operators: string[] = Object.values(SearchOperators);
 class QueryPipe<Model = typeof BaseModel> implements PipeTransform {
   private readonly model: Model;
   private readonly fields: string[];
+  private readonly relations: string[];
 
-  constructor(model: Model, fields: string[]) {
+  constructor(model: Model, opts: QueryPipeOpts) {
+    const { fields = [], relations = [] } = opts;
     this.model = model;
     this.fields = fields;
+    this.relations = relations;
   }
 
   transform(value: any, metadata: ArgumentMetadata) {
@@ -58,7 +67,14 @@ class QueryPipe<Model = typeof BaseModel> implements PipeTransform {
       throw new BadRequestException('Invalid query supplied');
     }
     const parsedQuery: any = {};
-    const { page = 1, pageSize = DEFAULT_PAGE_SIZE, sort, filter, responseFields, relations } = rawQuery;
+    const {
+      page = 1,
+      pageSize = DEFAULT_PAGE_SIZE,
+      responseFields = '',
+      relations: requestedRelations = '',
+      sort,
+      filter,
+    } = rawQuery;
     if (sort && this.fields.length) {
       parsedQuery.order = this.convertSort(sort);
     }
@@ -70,9 +86,11 @@ class QueryPipe<Model = typeof BaseModel> implements PipeTransform {
     if (filter && this.fields.length) {
       parsedQuery.where = this.convertFilter(filter);
     }
-    if ((relations || responseFields) && this.fields.length) {
-      // TODO: parse select fields and joins
-    }
+    // if ((requestedRelations && this.relations.length) || (responseFields && this.fields.length))
+    const { relations, select } = this.handleResponseFields(responseFields, requestedRelations);
+    parsedQuery.select = select;
+    parsedQuery.relations = relations;
+
     parsedQuery.original = rawQuery;
     return parsedQuery;
   }
@@ -110,7 +128,7 @@ class QueryPipe<Model = typeof BaseModel> implements PipeTransform {
       case SearchOperators.EQUAL: {
         const [key, value] = rawFilterValue.split(SearchOperators.EQUAL);
         if (value === '') {
-          throw new BadRequestException(`Provider value for '${SearchOperators.EQUAL}' operator`);
+          throw new BadRequestException(`Provide value for '${SearchOperators.EQUAL}' operator`);
         }
         return [key, value];
       }
@@ -119,40 +137,44 @@ class QueryPipe<Model = typeof BaseModel> implements PipeTransform {
         // TODO: parse commas but inside square brackets
         const values = value.split('|');
         if (values.length === 0) {
-          throw new BadRequestException(`Provider correct value for '${SearchOperators.IN}' operator`);
+          throw new BadRequestException(`Provide correct value for '${SearchOperators.IN}' operator`);
         }
         return [key, values];
       }
       case SearchOperators.GT: {
         const [key, value] = rawFilterValue.split(SearchOperators.GT);
         if (value === '') {
-          throw new BadRequestException(`Provider value for '${SearchOperators.GT}' operator`);
+          throw new BadRequestException(`Provide value for '${SearchOperators.GT}' operator`);
         }
         return [key, MoreThan(value)];
       }
       case SearchOperators.GTE: {
         const [key, value] = rawFilterValue.split(SearchOperators.GTE);
         if (value === '') {
-          throw new BadRequestException(`Provider value for '${SearchOperators.GTE}' operator`);
+          throw new BadRequestException(`Provide value for '${SearchOperators.GTE}' operator`);
         }
         return [key, MoreThanOrEqual(value)];
       }
       case SearchOperators.LT: {
         const [key, value] = rawFilterValue.split(SearchOperators.LT);
         if (value === '') {
-          throw new BadRequestException(`Provider value for '${SearchOperators.LT}' operator`);
+          throw new BadRequestException(`Provide value for '${SearchOperators.LT}' operator`);
         }
         return [key, LessThan(value)];
       }
       case SearchOperators.LTE: {
         const [key, value] = rawFilterValue.split(SearchOperators.LTE);
         if (value === '') {
-          throw new BadRequestException(`Provider value for '${SearchOperators.LTE}' operator`);
+          throw new BadRequestException(`Provide value for '${SearchOperators.LTE}' operator`);
         }
         return [key, LessThanOrEqual(value)];
       }
       case SearchOperators.NOT_EQUAL: {
-        throw new BadRequestException('Not implemented');
+        const [key, value] = rawFilterValue.split(SearchOperators.NOT_EQUAL);
+        if (value === '') {
+          throw new BadRequestException(`Provide value for '${SearchOperators.NOT_EQUAL}' operator`);
+        }
+        return [key, NotEquals(value)];
       }
       default: {
         throw new BadRequestException('Unknown operator supplied');
@@ -201,6 +223,43 @@ class QueryPipe<Model = typeof BaseModel> implements PipeTransform {
         }),
         {}
       );
+  }
+
+  private handleResponseFields(responseFields: string, requestedRelations: string): { select; relations } {
+    const parsedRelationList = this.parseRelations(requestedRelations);
+    const parsedFields = this.parseFields(responseFields);
+    const relations = parsedRelationList.reduce(
+      (relations, relationName) => ({
+        ...relations,
+        [relationName]: true,
+      }),
+      {}
+    );
+    return { relations, select: parsedFields };
+  }
+
+  private parseFields(responseFields: string): string[] {
+    if (responseFields && !(responseFields === 'ALL')) {
+      const requestedFields = this.separateRaw(responseFields);
+      return requestedFields.filter((field) => this.fields.includes(field.toLowerCase()));
+    }
+    if (responseFields === 'ALL' || !responseFields) {
+      return this.fields.map((v) => v);
+    }
+  }
+
+  private parseRelations(requestedRelations: string): string[] {
+    if (requestedRelations && !(requestedRelations === 'ALL' || requestedRelations === 'null')) {
+      const requestedRelationsList = this.separateRaw(requestedRelations);
+      return requestedRelationsList.filter((rel) => this.relations.includes(rel.toLowerCase()));
+    }
+    if (requestedRelations === 'ALL') {
+      return this.relations.map((v) => v);
+    }
+    if (requestedRelations === 'null' || !requestedRelations) {
+      return [];
+    }
+    throw new BadRequestException('Not Implemented: code = 0001');
   }
 
   private separateRaw(queryValue: string): string[] {
