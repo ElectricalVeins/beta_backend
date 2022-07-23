@@ -2,6 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { RefreshTokenService } from '../token-refresh/token-refresh.service';
 
+/* TODO: Extract cron jobs to separate microservice */
+
 @Injectable()
 export class CronService {
   private readonly logger = new Logger(CronService.name);
