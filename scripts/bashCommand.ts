@@ -6,7 +6,7 @@ type bashOpts = {
   io?: StdioOptions | undefined;
 };
 
-export default async function bashCommand(command: string, opts?: bashOpts): Promise<void> {
+export default async function bashCommand(command: string, opts: bashOpts = {}): Promise<void> {
   const { io = 'inherit', errorMessage, args } = opts;
   return new Promise((resolve, reject) => {
     const cli = spawn(command, args, { shell: true, stdio: io });

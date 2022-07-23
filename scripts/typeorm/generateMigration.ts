@@ -6,7 +6,7 @@ async function run(command: string): Promise<void> {
     throw new Error('Enter the migration name');
   }
   return await bashCommand(
-    `npx typeorm-ts-node-esm migration:generate ./src/migrations/${command.toLowerCase()} -d ./src/config/configuration-expert.ts`
+    `npx typeorm-ts-node-esm migration:generate ./src/migrations/${command.toLowerCase()} -d ./scripts/typeorm/cliConfig.ts`
   );
 }
 
