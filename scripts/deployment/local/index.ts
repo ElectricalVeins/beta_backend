@@ -1,16 +1,10 @@
 /* eslint-disable no-console */
 import bashCommand from '../../bashCommand';
+import config from '../config';
 
 async function getDockerCommand(): Promise<string> {
-  try {
-    const command = 'docker compose';
-    await bashCommand(command, { io: null });
-    return command;
-  } catch (e) {
-    const command = 'docker-compose';
-    await bashCommand(command, { io: null });
-    return command;
-  }
+  const isOld = config.getSettings('Old docker compose', true);
+  return isOld ? 'docker-compose' : 'docker compose';
 }
 
 async function run(command: string): Promise<void> {
