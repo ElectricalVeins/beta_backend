@@ -3,9 +3,10 @@ import { BaseModel } from '../utils/BaseModel';
 import { User } from '../user/user.entity';
 
 export enum RolesEnum {
-  USER = 1,
-  PREMIUM = 2,
-  ADMIN = 3,
+  MASTER = 'MASTER',
+  ADMIN = 'ADMIN',
+  PREMIUM = 'PREMIUM',
+  USER = 'USER',
 }
 
 @Entity()

@@ -14,6 +14,7 @@ import { RoleModule } from '../role/role.module';
 import { UserModule } from '../user/user.module';
 import { MailModule } from '../mail/mail.module';
 import { CronModule } from '../cron/cron.module';
+import { TierModule } from '../tier/tier.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { CronModule } from '../cron/cron.module';
     AuthModule,
     MailModule,
     CronModule,
+    TierModule,
   ],
   controllers: [AppController],
   providers: [

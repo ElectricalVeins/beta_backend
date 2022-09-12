@@ -1,18 +1,25 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ID } from 'src/types';
+import { FindManyOptions } from 'typeorm';
+import { ID } from '../types';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User, UserStatusEnum } from './user.entity';
 import { RolesEnum } from '../role/role.entity';
 import { RoleService } from '../role/role.service';
-import { FindManyOptions } from 'typeorm';
+import { TierService } from '../tier/tier.service';
 
 @Injectable()
 export class UserService {
-  constructor(private roleService: RoleService) {}
+  constructor(private roleService: RoleService, private tierService: TierService) {}
 
   async create(dto: CreateUserDto): Promise<User> {
     const role = await this.roleService.getRoleByName(RolesEnum.USER);
+    /* start region: Validation */
+    const tier = await this.tierService.findOne(dto.tier);
+    if (!tier) {
+      throw new NotFoundException('Specified User.tier not found!');
+    }
+    /* end region */
     const draft = User.build(new User(), { ...dto, role });
     return await draft.save();
   }

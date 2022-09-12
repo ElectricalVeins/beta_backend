@@ -16,6 +16,7 @@ import { Role, RolesEnum } from '../role/role.entity';
 import { BaseModel } from '../utils/BaseModel';
 import { config } from '../config/configuration-expert';
 import { RefreshToken } from '../token-refresh/token-refresh.entity';
+import { Tier } from '../tier/tier.entity';
 
 const SALT = config.get('app.security.salt');
 
@@ -50,6 +51,9 @@ export class User extends BaseModel {
   })
   status: UserStatusEnum;
 
+  @Column({ nullable: true })
+  preferredTimezone: string;
+
   @UpdateDateColumn()
   lastModified: Date;
 
@@ -61,6 +65,10 @@ export class User extends BaseModel {
 
   @OneToMany(() => RefreshToken, (token) => token.user)
   refreshTokens: RefreshToken;
+
+  @Exclude()
+  @ManyToOne(() => Tier, (tier) => tier.user, { lazy: true })
+  tier: Tier;
 
   @BeforeInsert()
   @BeforeUpdate()

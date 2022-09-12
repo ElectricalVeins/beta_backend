@@ -12,4 +12,11 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   password: string;
+
+  @IsString()
+  @IsNotEmpty()
+  tier: string;
+
+  @IsString()
+  preferredTimezone?: string;
 }

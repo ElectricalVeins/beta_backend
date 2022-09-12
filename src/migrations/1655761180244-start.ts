@@ -37,7 +37,8 @@ export class start1655761180244 implements MigrationInterface {
     );
     await queryRunner.query(
       `INSERT INTO "role" ("name")
-       values ('${RolesEnum.ADMIN}'),
+       values ('${RolesEnum.MASTER}'),
+              ('${RolesEnum.ADMIN}'),
               ('${RolesEnum.PREMIUM}'),
               ('${RolesEnum.USER}');`
     );
