@@ -14,7 +14,7 @@ export class Role extends BaseModel {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true })
+  @Column({ unique: true, type: 'enum', enum: RolesEnum })
   name: RolesEnum;
 
   @OneToMany(() => User, (user) => user.role)

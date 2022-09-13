@@ -20,7 +20,7 @@ import { Tier } from '../tier/tier.entity';
 
 const SALT = config.get('app.security.salt');
 
-export const enum UserStatusEnum {
+export enum UserStatusEnum {
   BLOCKED = 'BLOCKED',
   ONLINE = 'ONLINE', // ??? extract to separate boolean field or to redis flag
   ACTIVE = 'ACTIVE', // after email activation
@@ -40,14 +40,13 @@ export class User extends BaseModel {
   @Exclude()
   password: string;
 
-  @Index({ unique: true })
-  @Column({
-    unique: true,
-  })
+  @Column({ unique: true })
   email: string;
 
   @Column({
+    type: 'enum',
     default: UserStatusEnum.INACTIVE,
+    enum: UserStatusEnum,
   })
   status: UserStatusEnum;
 
@@ -67,7 +66,7 @@ export class User extends BaseModel {
   refreshTokens: RefreshToken;
 
   @Exclude()
-  @ManyToOne(() => Tier, (tier) => tier.user, { lazy: true })
+  @ManyToOne(() => Tier, (tier) => tier.user, { lazy: true, nullable: false })
   tier: Tier;
 
   @BeforeInsert()
