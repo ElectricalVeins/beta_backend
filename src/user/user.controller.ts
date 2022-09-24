@@ -29,13 +29,13 @@ export class UserController {
   @Get('currentuser')
   @UseGuards(JwtAuthGuard)
   getCurrentUser(@CurrentUser() user: JwtPayload): Promise<Partial<User>> | void {
-    return this.userService.findOneById(Number(user.userid));
+    return this.userService.findOneById(Number(user.userid), Number(user.tier));
   }
 
   @Get(':id')
   @UseGuards(JwtAuthGuard)
-  findOne(@Param('id') id: string): Promise<Partial<User>> {
-    return this.userService.findOneById(+id);
+  findOne(@Param('id') id: string, @CurrentUser() user: JwtPayload): Promise<Partial<User>> {
+    return this.userService.findOneById(+id, Number(user.tier));
   }
 
   @Put(':id')
@@ -49,6 +49,6 @@ export class UserController {
     if (user.role !== RolesEnum.ADMIN && id !== user.userid) {
       throw new BadRequestException('Not enough rights');
     }
-    return this.userService.update(Number(id), updateUserDto);
+    return this.userService.update(Number(id), updateUserDto, user.tier);
   }
 }

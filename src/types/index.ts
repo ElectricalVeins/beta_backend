@@ -4,6 +4,7 @@ import { User } from '../user/user.entity';
 export type ID = string | number;
 
 export type JwtPayload = {
+  tier: string;
   userid: ID;
   role?: RolesEnum;
 };

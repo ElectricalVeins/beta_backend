@@ -25,9 +25,12 @@ export class UserService {
   }
 
   /*repo*/
-  async findOneById(id: number): Promise<Partial<User>> {
+  async findOneById(id: number, tier: number): Promise<Partial<User>> {
     const foundUser = await User.findOne({
-      where: { id },
+      where: {
+        id,
+        tier: { id: tier },
+      },
       relations: { role: true },
     });
     if (!foundUser) {
@@ -49,24 +52,24 @@ export class UserService {
 
   /*end repo*/
 
-  async update(id: number, updateUserDto: UpdateUserDto): Promise<Partial<User>> {
-    const user = await this.findOneById(id);
+  async update(id: number, updateUserDto: UpdateUserDto, tierId: string): Promise<Partial<User>> {
+    const user = await this.findOneById(id, Number(tierId));
     user.mutate(updateUserDto);
     return user.save();
   }
 
-  async updateUserStatus(id: ID, status: UserStatusEnum): Promise<Partial<User>> {
-    const user = await this.findOneById(+id);
+  async updateUserStatus(id: ID, status: UserStatusEnum, tierId: string): Promise<Partial<User>> {
+    const user = await this.findOneById(Number(id), Number(tierId));
     user.mutate({ status });
     return user.save();
   }
 
-  async activateUser(id: ID): Promise<Partial<User>> {
-    return this.updateUserStatus(id, UserStatusEnum.ACTIVE);
+  async activateUser(id: ID, tier: string): Promise<Partial<User>> {
+    return this.updateUserStatus(id, UserStatusEnum.ACTIVE, tier);
   }
 
-  async blockUser(id: ID): Promise<Partial<User>> {
-    return this.updateUserStatus(id, UserStatusEnum.BLOCKED);
+  async blockUser(id: ID, tier: string): Promise<Partial<User>> {
+    return this.updateUserStatus(id, UserStatusEnum.BLOCKED, tier);
   }
 
   async checkPassword(user, checkPassword): Promise<boolean> {

@@ -1,7 +1,8 @@
 ## TODO:
 
-- add __*pre-select*__ typeorm hook. (Problem - no hooks available in lib. **Find a solution**)
-- add frontend. critical for app. high priority
+- add tier to jwt token. Introduce tiers to logic. critical priority.
+- add frontend. critical for app. high priority.
+- add __*pre-select*__ typeorm hook. (Problem - no hooks available in lib. **Find a solution**). high priority. Need for validation tier value presence on every query.
 
 ## Deferred:
 

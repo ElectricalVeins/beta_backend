@@ -23,7 +23,12 @@ export class AuthService {
 
   public async signUp(dto: CreateUserDto): Promise<UserAuth> {
     const user = await this.userService.create(dto);
-    const [[access, refresh], set] = await this.tokenService.signTokens({ userid: user.id, role: user.role['id'] });
+    const { id: tier } = await user.tier;
+    const [[access, refresh], set] = await this.tokenService.signTokens({
+      userid: user.id,
+      role: user.role['id'],
+      tier: tier.toString(),
+    });
     await this.refreshTokenService.createRecord(refresh, user.id, false);
     this.mailService.sendConfirmationEmail(user);
     set();
@@ -38,12 +43,16 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('Incorrect login or password');
     }
-
+    const { id: tier } = await user.tier;
     const isCorrectPassword = await this.userService.checkPassword(user, dto.password);
     if (!isCorrectPassword) {
       throw new UnauthorizedException('Incorrect login or password');
     }
-    const [[access, refresh], set] = await this.tokenService.signTokens({ userid: user.id, role: user.role['id'] });
+    const [[access, refresh], set] = await this.tokenService.signTokens({
+      userid: user.id,
+      role: user.role['id'],
+      tier: tier.toString(),
+    });
     await this.refreshTokenService.createRecord(refresh, user.id);
     set();
     return {
@@ -53,17 +62,21 @@ export class AuthService {
   }
 
   public async activateUser(token: string): Promise<any> {
-    const { userid }: Partial<JwtPayload> = await this.tokenService.verifyConfirmEmailToken(token);
-    return await this.userService.activateUser(userid);
+    const { userid, tier }: Partial<JwtPayload> = await this.tokenService.verifyConfirmEmailToken(token);
+    return await this.userService.activateUser(userid, tier);
   }
 
   public async refreshSession(refreshToken: string): Promise<UserAuth> {
-    const { id } = await this.tokenService.verifyToken(refreshToken, JwtTokenTypes.REFRESH);
-    const user = await this.userService.findOneById(id);
+    const { id, tier } = await this.tokenService.verifyToken(refreshToken, JwtTokenTypes.REFRESH);
+    const user = await this.userService.findOneById(id, tier);
     if (!user) {
       throw new NotFoundException();
     }
-    const [[access, refresh], set] = await this.tokenService.signTokens({ userid: user.id, role: user.role['id'] });
+    const [[access, refresh], set] = await this.tokenService.signTokens({
+      userid: user.id,
+      role: user.role['id'],
+      tier: tier.toString(),
+    });
     const existingRefreshToken = await this.refreshTokenService.getTokenRecordByValue(refreshToken, user.id);
 
     await config.dataSource.transaction(async () =>
