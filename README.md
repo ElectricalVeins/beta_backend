@@ -7,6 +7,8 @@
 
 ## Installation
 
+In WSL console:
+
 ```bash
 # Start docker service
 $ sudo service docker start
@@ -60,3 +62,9 @@ $ yarn run test:e2e
 # test coverage
 $ yarn run test:cov
 ```
+
+## Related Docs
+
+- [Architecture](./docs/architecture.md)
+- [Query](./docs/query.md)
+- [Tasks](./docs/tasks.md)
