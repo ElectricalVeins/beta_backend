@@ -1,6 +1,7 @@
 ## Public
 
 - User
+- Tier
 
 ## Internal
 

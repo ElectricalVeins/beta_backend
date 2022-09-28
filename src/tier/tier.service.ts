@@ -13,4 +13,8 @@ export class TierService {
       [typeof criteria === 'string' ? 'name' : 'id']: criteria,
     });
   }
+
+  async publicFind(): Promise<Tier[]> {
+    return Tier.find();
+  }
 }

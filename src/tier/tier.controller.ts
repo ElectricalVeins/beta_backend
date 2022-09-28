@@ -16,4 +16,11 @@ export class TierController {
   create(@Body() dto: CreateTierDto): Promise<Tier> {
     return this.tierService.create(dto);
   }
+
+  @Post()
+  @Roles(RolesEnum.USER)
+  @UseGuards(JwtAuthGuard)
+  publicFind(): Promise<Tier[]> {
+    return this.tierService.publicFind();
+  }
 }
