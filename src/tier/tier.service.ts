@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateTierDto } from './dto/create-tier.dto';
-import { Tier } from './tier.entity';
+import { Tier, TierLevel } from './tier.entity';
 
 @Injectable()
 export class TierService {
@@ -15,6 +15,6 @@ export class TierService {
   }
 
   async publicFind(): Promise<Tier[]> {
-    return Tier.find();
+    return Tier.find({ where: { level: TierLevel.PUBLIC } });
   }
 }
