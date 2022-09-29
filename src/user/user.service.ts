@@ -20,7 +20,7 @@ export class UserService {
       throw new NotFoundException('Specified User.tier not found!');
     }
     /* end region */
-    const draft = User.build(new User(), { ...dto, role });
+    const draft = User.build(new User(), { ...dto, role, tier });
     return await draft.save();
   }
 

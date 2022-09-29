@@ -66,7 +66,7 @@ export class User extends BaseModel {
   refreshTokens: RefreshToken;
 
   @Exclude()
-  @ManyToOne(() => Tier, (tier) => tier.user, { lazy: true, nullable: false })
+  @ManyToOne(() => Tier, (tier) => tier.user, { nullable: false })
   tier: Tier;
 
   @BeforeInsert()

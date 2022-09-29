@@ -23,11 +23,13 @@ export class AuthService {
 
   public async signUp(dto: CreateUserDto): Promise<UserAuth> {
     const user = await this.userService.create(dto);
-    const { id: tier } = await user.tier;
+    const {
+      tier: { id: tierId },
+    } = user;
     const [[access, refresh], set] = await this.tokenService.signTokens({
       userid: user.id,
       role: user.role['id'],
-      tier: tier.toString(),
+      tier: tierId.toString(),
     });
     await this.refreshTokenService.createRecord(refresh, user.id, false);
     this.mailService.sendConfirmationEmail(user);
