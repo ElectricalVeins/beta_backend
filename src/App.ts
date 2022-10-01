@@ -1,5 +1,5 @@
-import { NestFactory } from '@nestjs/core';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { NestFactory, Reflector } from '@nestjs/core';
+import { ClassSerializerInterceptor, INestApplication, ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app/app.module';
 import { config } from './config/configuration-expert';
 
@@ -20,6 +20,7 @@ export class App {
         stopAtFirstError: false,
       })
     );
+    server.useGlobalInterceptors(new ClassSerializerInterceptor(server.get(Reflector), { excludePrefixes: ['__'] }));
     server.useLogger(config.get('app.logs.level'));
     return new App(server);
   }

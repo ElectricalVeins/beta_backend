@@ -44,7 +44,6 @@ export class AuthService {
       throw new UnauthorizedException('Incorrect login or password');
     }
     const { id: tier } = await user.tier;
-    /* TODO: find a way to exclude `__tier__` field from response: https://github.com/typeorm/typeorm/issues/2836#issuecomment-1099808057 */
     const isCorrectPassword = await this.userService.checkPassword(user, dto.password);
     if (!isCorrectPassword) {
       throw new UnauthorizedException('Incorrect login or password');
