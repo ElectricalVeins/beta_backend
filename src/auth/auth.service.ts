@@ -23,17 +23,15 @@ export class AuthService {
 
   public async signUp(dto: CreateUserDto): Promise<UserAuth> {
     const user = await this.userService.create(dto);
-    const {
-      tier: { id: tierId },
-    } = user;
-    const [[access, refresh], set] = await this.tokenService.signTokens({
+    const { id: tier } = await user.tier;
+    const [[access, refresh], setTokenCache] = await this.tokenService.signTokens({
       userid: user.id,
       role: user.role['id'],
-      tier: tierId.toString(),
+      tier: tier.toString(),
     });
     await this.refreshTokenService.createRecord(refresh, user.id, false);
     this.mailService.sendConfirmationEmail(user);
-    set();
+    setTokenCache();
     return {
       user,
       tokens: { access, refresh },
@@ -46,17 +44,18 @@ export class AuthService {
       throw new UnauthorizedException('Incorrect login or password');
     }
     const { id: tier } = await user.tier;
+    /* TODO: find a way to exclude `__tier__` field from response */
     const isCorrectPassword = await this.userService.checkPassword(user, dto.password);
     if (!isCorrectPassword) {
       throw new UnauthorizedException('Incorrect login or password');
     }
-    const [[access, refresh], set] = await this.tokenService.signTokens({
+    const [[access, refresh], setTokenCache] = await this.tokenService.signTokens({
       userid: user.id,
       role: user.role['id'],
       tier: tier.toString(),
     });
     await this.refreshTokenService.createRecord(refresh, user.id);
-    set();
+    setTokenCache();
     return {
       user,
       tokens: { access, refresh },
@@ -74,7 +73,7 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException();
     }
-    const [[access, refresh], set] = await this.tokenService.signTokens({
+    const [[access, refresh], setTokenCache] = await this.tokenService.signTokens({
       userid: user.id,
       role: user.role['id'],
       tier: tier.toString(),
@@ -87,7 +86,7 @@ export class AuthService {
         this.refreshTokenService.createRecord(refresh, user.id),
       ])
     );
-    set();
+    setTokenCache();
     return {
       user,
       tokens: { access, refresh },
