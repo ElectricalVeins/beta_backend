@@ -17,7 +17,9 @@ export class AppExceptionsFilter implements ExceptionFilter {
     };
 
     if (exception instanceof HttpException) {
-      errorDetails.message = exception.getResponse();
+      const response: any = exception.getResponse();
+      errorDetails.message = typeof response === 'object' ? response?.message : response;
+
       errorDetails.statusCode = exception.getStatus();
     }
 
