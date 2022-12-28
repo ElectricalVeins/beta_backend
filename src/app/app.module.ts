@@ -15,6 +15,7 @@ import { UserModule } from '../user/user.module';
 import { MailModule } from '../mail/mail.module';
 import { CronModule } from '../cron/cron.module';
 import { TierModule } from '../tier/tier.module';
+import { BalanceModule } from '../balance/balance.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { TierModule } from '../tier/tier.module';
     RefreshTokenModule,
     RoleModule,
     UserModule,
+    BalanceModule,
     AuthModule,
     MailModule,
     CronModule,

@@ -5,8 +5,10 @@ import {
   CreateDateColumn,
   Entity,
   Index,
+  JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -17,6 +19,7 @@ import { BaseModel } from '../utils/BaseModel';
 import { config } from '../config/configuration-expert';
 import { RefreshToken } from '../token-refresh/token-refresh.entity';
 import { Tier } from '../tier/tier.entity';
+import { Balance } from '../balance/balance.entity';
 
 const SALT = config.get('app.security.salt');
 
@@ -25,6 +28,12 @@ export enum UserStatusEnum {
   ONLINE = 'ONLINE', // ??? extract to separate boolean field or to redis flag
   ACTIVE = 'ACTIVE', // after email activation
   INACTIVE = 'INACTIVE', // before email confirmation
+}
+
+export async function hashPassword(): Promise<void> {
+  if (this.password) {
+    this.password = await bcrypt.hash(this.password, await bcrypt.genSalt(SALT));
+  }
 }
 
 @Entity()
@@ -65,16 +74,19 @@ export class User extends BaseModel {
   @OneToMany(() => RefreshToken, (token) => token.user)
   refreshTokens: RefreshToken;
 
-  @Exclude()
+  @Exclude() /* How to expose this field?: @Expose and map to other field */
   @ManyToOne(() => Tier, (tier) => tier.user, { nullable: false, lazy: true })
   tier: Tier;
 
+  @OneToOne(() => Balance, { nullable: false })
+  @JoinColumn()
+  balance: Balance;
+
   @BeforeInsert()
   @BeforeUpdate()
-  async hashPassword(): Promise<void> {
-    if (this.password) {
-      this.password = await bcrypt.hash(this.password, await bcrypt.genSalt(SALT));
-    }
+  async prepareUser(): Promise<void> {
+    const [balance] = await Promise.all([Balance.save({}), hashPassword.call(this)]);
+    this.balance = balance;
   }
 
   static async checkPassword(user: User, checkPassword: string): Promise<boolean> {
