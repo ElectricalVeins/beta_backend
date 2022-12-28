@@ -26,6 +26,7 @@
     "test:full": "npm run test && npm run test:e2e && npm run test:cov",
     "prepare": "husky install",
     "typeorm:run": "yarn typeorm-ts-node-esm migration:run -d ./scripts/typeorm/cliConfig.ts",
+    "typeorm:revert": "yarn typeorm-ts-node-esm migration:revert -d ./scripts/typeorm/cliConfig.ts",
     "typeorm:generate": "ts-node ./scripts/typeorm/generateMigration.ts"
   },
   "dependencies": {

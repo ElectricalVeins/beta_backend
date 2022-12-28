@@ -43,6 +43,9 @@ $ yarn run env:local:stop
 # Run migrations
 $ yarn run typeorm:run
 
+# Revert migrations
+$ yarn run typeorm:revert
+
 # Generate migration
 $ yarn run typeorm:generate <migration-name>
 
