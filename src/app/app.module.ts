@@ -16,6 +16,9 @@ import { MailModule } from '../mail/mail.module';
 import { CronModule } from '../cron/cron.module';
 import { TierModule } from '../tier/tier.module';
 import { BalanceModule } from '../balance/balance.module';
+import { LotModule } from '../lot/lot.module';
+import { LotTagModule } from '../lot-tag/lot-tag.module';
+import { BidModule } from '../bid/bid.module';
 
 @Module({
   imports: [
@@ -36,6 +39,10 @@ import { BalanceModule } from '../balance/balance.module';
     MailModule,
     CronModule,
     TierModule,
+    /*Auction core modules*/
+    LotTagModule,
+    LotModule,
+    BidModule,
   ],
   controllers: [AppController],
   providers: [

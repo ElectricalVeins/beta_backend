@@ -20,6 +20,7 @@ import { config } from '../config/configuration-expert';
 import { RefreshToken } from '../token-refresh/token-refresh.entity';
 import { Tier } from '../tier/tier.entity';
 import { Balance } from '../balance/balance.entity';
+import { Bid } from '../bid/bid.entity';
 
 const SALT = config.get('app.security.salt');
 
@@ -81,6 +82,10 @@ export class User extends BaseModel {
   @OneToOne(() => Balance, { nullable: false })
   @JoinColumn()
   balance: Balance;
+
+  @Exclude()
+  @OneToMany(() => Bid, (bid) => bid.user, { lazy: true })
+  bids: Promise<Bid[]>;
 
   @BeforeInsert()
   @BeforeUpdate()
