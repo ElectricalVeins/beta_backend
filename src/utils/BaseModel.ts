@@ -1,7 +1,7 @@
 import { BaseEntity } from 'typeorm';
 import { instanceToPlain } from 'class-transformer';
 
-export class BaseModel extends BaseEntity {
+export abstract class BaseModel extends BaseEntity {
   public get type(): string {
     return this.constructor.name;
   }

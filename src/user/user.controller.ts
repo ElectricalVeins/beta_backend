@@ -40,6 +40,7 @@ export class UserController {
 
   @Put(':id')
   @UseGuards(JwtAuthGuard)
+  //@UseInterceptors(FileInterceptor('user-photo'))
   update(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,

@@ -11,6 +11,7 @@ import {
 import { BaseModel } from '../utils/BaseModel';
 import { LotTag } from '../lot-tag/lot-tag.entity';
 import { Bid } from '../bid/bid.entity';
+import { LotPhoto } from '../lot-photo/lot-photo.entity';
 
 @Entity()
 export class Lot extends BaseModel {
@@ -48,5 +49,6 @@ export class Lot extends BaseModel {
   @OneToMany(() => Bid, (bid) => bid.lot, { lazy: true })
   bids?: Promise<Bid[]>;
 
-  // photos?: Photo[];
+  @OneToMany(() => LotPhoto, (photo) => photo.lot, { lazy: true })
+  photos?: Promise<LotPhoto[]>;
 }

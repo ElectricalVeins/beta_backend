@@ -44,7 +44,8 @@
       ]
     }
   },
-  "s3": {
+  "aws": {
+    "s3bucket": "stringvalue",
     "accessKeyId": "stringvalue",
     "secretAccessKey": "stringvalue",
     "region": "eu-central-1"

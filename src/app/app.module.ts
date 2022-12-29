@@ -19,6 +19,8 @@ import { BalanceModule } from '../balance/balance.module';
 import { LotModule } from '../lot/lot.module';
 import { LotTagModule } from '../lot-tag/lot-tag.module';
 import { BidModule } from '../bid/bid.module';
+import { S3Module } from '../s3/s3.module';
+import { LotPhotoModule } from '../lot-photo/lot-photo.module';
 
 @Module({
   imports: [
@@ -30,19 +32,21 @@ import { BidModule } from '../bid/bid.module';
     }),
     TypeOrmModule.forRoot(config.getOrmConfig()),
     ScheduleModule.forRoot(),
+    TierModule,
     TokenModule,
     RefreshTokenModule,
+    MailModule,
+    CronModule,
     RoleModule,
     UserModule,
     BalanceModule,
     AuthModule,
-    MailModule,
-    CronModule,
-    TierModule,
+    S3Module,
     /*Auction core modules*/
     LotTagModule,
-    LotModule,
+    LotPhotoModule,
     BidModule,
+    LotModule,
   ],
   controllers: [AppController],
   providers: [
