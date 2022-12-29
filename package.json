@@ -39,6 +39,7 @@
     "@nestjs/platform-express": "^9.0.5",
     "@nestjs/schedule": "^2.1.0",
     "@nestjs/typeorm": "^9.0.0",
+    "aws-sdk": "^2.1284.0",
     "bcrypt": "^5.0.1",
     "cache-manager": "^4.1.0",
     "cache-manager-redis-store": "^2.0.0",
@@ -57,7 +58,8 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
-    "typeorm": "^0.3.10"
+    "typeorm": "^0.3.10",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",
