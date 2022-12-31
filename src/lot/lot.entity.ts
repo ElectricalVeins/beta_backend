@@ -18,6 +18,7 @@ import { User } from '../user/user.entity';
 export enum LotStatusEnum {
   OPEN = 'OPEN',
   CLOSED = 'CLOSED',
+  DISABLED = 'DISABLED',
 }
 
 @Entity()
@@ -45,6 +46,9 @@ export class Lot extends BaseModel {
 
   @Column({ type: 'timestamp' })
   deadline: Date;
+
+  @Column()
+  userId: number;
 
   @UpdateDateColumn()
   lastModified: Date;
