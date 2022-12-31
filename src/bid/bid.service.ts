@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { DataSource, EntityManager, FindManyOptions } from 'typeorm';
 import { FindOptionsRelations } from 'typeorm/find-options/FindOptionsRelations';
 import { Bid, BidStatusEnum } from './bid.entity';
@@ -24,6 +24,7 @@ export class BidService {
 
   async create(dto: CreateBidDto, user: JwtPayload): Promise<any> {
     return await this.dataSource.transaction('REPEATABLE READ', async (transaction) => {
+      /*TODO: Check is User active and Balance Ok*/
       const lot: Lot = await this.lotService.getOpenLotById(dto.lot, transaction);
       if (user.userid === lot.user.id) {
         throw new BadRequestException('You can`t bid your own lot');
@@ -84,14 +85,7 @@ export class BidService {
   }
 
   async findOneById(id: number, relations: FindOptionsRelations<Bid> = {}): Promise<Partial<Bid>> {
-    const entity = await Bid.findOne({
-      where: { id },
-      relations,
-    });
-    if (!entity) {
-      throw new NotFoundException();
-    }
-    return entity;
+    return await Bid.findOneOrFail({ where: { id }, relations });
   }
 
   /*end repo*/

@@ -15,6 +15,7 @@ export class LotService {
   constructor(private readonly s3Service: S3Service, private readonly lotPhotoService: LotPhotoService) {}
 
   async create(dto: CreateLotDto, user: JwtPayload): Promise<Lot> {
+    /*TODO: Check is User active*/
     const { photos, ...restOfDto } = dto;
     const draft = Lot.build(new Lot(), { ...restOfDto, user: user.userid });
     const lotEntity = await draft.save();
@@ -25,20 +26,14 @@ export class LotService {
           return key;
         })
       );
-      lotEntity.photos = await this.lotPhotoService.bulkCreateByKeys(photoKeys, lotEntity.user.id);
+      lotEntity.photos = await this.lotPhotoService.bulkCreateByKeys(photoKeys, lotEntity.userId);
       await lotEntity.save();
     }
     return lotEntity;
   }
 
   async delete(id: number): Promise<any> {
-    const entity = await Lot.findOne({
-      where: { id },
-      relations: ['photos'],
-    });
-    if (!entity) {
-      throw new NotFoundException('Lot not found');
-    }
+    const entity = await Lot.findOneOrFail({ where: { id }, relations: ['photos'] });
     if (entity.photos.length) {
       Promise.all(
         entity.photos.map(async (photo) =>
