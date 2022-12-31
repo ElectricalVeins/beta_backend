@@ -4,6 +4,7 @@ import {
   Entity,
   JoinTable,
   ManyToMany,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -12,6 +13,12 @@ import { BaseModel } from '../utils/BaseModel';
 import { LotTag } from '../lot-tag/lot-tag.entity';
 import { Bid } from '../bid/bid.entity';
 import { LotPhoto } from '../lot-photo/lot-photo.entity';
+import { User } from '../user/user.entity';
+
+export enum LotStatusEnum {
+  OPEN = 'OPEN',
+  CLOSED = 'CLOSED',
+}
 
 @Entity()
 export class Lot extends BaseModel {
@@ -33,6 +40,9 @@ export class Lot extends BaseModel {
   @Column({ type: 'integer' })
   step: number;
 
+  @Column({ type: 'enum', enum: LotStatusEnum, default: LotStatusEnum.OPEN })
+  status: LotStatusEnum;
+
   @Column({ type: 'timestamp' })
   deadline: Date;
 
@@ -42,13 +52,16 @@ export class Lot extends BaseModel {
   @CreateDateColumn()
   createDate: Date;
 
-  @ManyToMany(() => LotTag, { eager: true })
+  @ManyToMany(() => LotTag)
   @JoinTable()
   tags?: LotTag[];
 
-  @OneToMany(() => Bid, (bid) => bid.lot, { lazy: true })
-  bids?: Promise<Bid[]>;
+  @OneToMany(() => Bid, (bid) => bid.lot)
+  bids?: Bid[];
 
-  @OneToMany(() => LotPhoto, (photo) => photo.lot, { lazy: true })
-  photos?: Promise<LotPhoto[]>;
+  @OneToMany(() => LotPhoto, (photo) => photo.lot, { cascade: true })
+  photos?: LotPhoto[];
+
+  @ManyToOne(() => User, (user) => user.lots)
+  user: User;
 }

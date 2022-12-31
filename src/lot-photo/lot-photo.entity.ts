@@ -4,6 +4,6 @@ import { Lot } from '../lot/lot.entity';
 
 @Entity()
 export class LotPhoto extends S3Object {
-  @ManyToOne(() => Lot, (lot) => lot.photos, { lazy: true })
-  lot: Promise<Lot>;
+  @ManyToOne(() => Lot, (lot) => lot.photos)
+  lot: Lot;
 }

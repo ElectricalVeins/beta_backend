@@ -21,6 +21,7 @@ import { RefreshToken } from '../token-refresh/token-refresh.entity';
 import { Tier } from '../tier/tier.entity';
 import { Balance } from '../balance/balance.entity';
 import { Bid } from '../bid/bid.entity';
+import { Lot } from '../lot/lot.entity';
 
 const SALT = config.get('app.security.salt');
 
@@ -75,17 +76,18 @@ export class User extends BaseModel {
   @OneToMany(() => RefreshToken, (token) => token.user)
   refreshTokens: RefreshToken;
 
-  @Exclude() /* How to expose this field?: @Expose and map to other field */
-  @ManyToOne(() => Tier, (tier) => tier.user, { nullable: false, lazy: true })
+  @ManyToOne(() => Tier, (tier) => tier.user, { nullable: false })
   tier: Tier;
 
   @OneToOne(() => Balance, { nullable: false })
   @JoinColumn()
   balance: Balance;
 
-  @Exclude()
-  @OneToMany(() => Bid, (bid) => bid.user, { lazy: true })
-  bids: Promise<Bid[]>;
+  @OneToMany(() => Bid, (bid) => bid.user)
+  bids: Bid[];
+
+  @OneToMany(() => Lot, (lot) => lot.user)
+  lots: Lot[];
 
   @BeforeInsert()
   @BeforeUpdate()
