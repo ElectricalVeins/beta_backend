@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const _ = require('lodash');
 import { ArgumentMetadata, BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
 import {
   FindManyOptions,
@@ -38,6 +40,7 @@ export enum SearchOperators {
 
 export const MAX_PAGE_SIZE = 500;
 export const DEFAULT_PAGE_SIZE = 50;
+const MAX_NESTED_RELATIONS_PERMITTED = 2;
 
 const operators: string[] = Object.values(SearchOperators);
 
@@ -228,13 +231,28 @@ class QueryPipe<Model = typeof BaseModel> implements PipeTransform {
   private handleResponseFields(responseFields: string, requestedRelations: string): { select; relations } {
     const parsedRelationList = this.parseRelations(requestedRelations);
     const parsedFields = this.parseFields(responseFields);
-    const relations = parsedRelationList.reduce(
-      (relations, relationName) => ({
-        ...relations,
-        [relationName]: true,
-      }),
-      {}
-    );
+    const relations = parsedRelationList.reduce((relations, relationName) => {
+      if (!relationName.includes('.')) {
+        return {
+          ...relations,
+          [relationName]: true,
+        };
+      } else {
+        const nestedRelations = relationName.split('.');
+        if (nestedRelations.length > MAX_NESTED_RELATIONS_PERMITTED) {
+          throw new BadRequestException('Too many nested relations requested');
+        }
+        if (_.intersection(Object.keys(relations), nestedRelations).length) {
+          throw new BadRequestException(
+            'Incorrect relations config. Don`t duplicate relations: `relation1,relation1.relation2`. Simply pass the deepest relation: `relation1.relation2`'
+          );
+        }
+        return {
+          ...relations,
+          ..._.set({}, relationName, true),
+        };
+      }
+    }, {});
     return { relations, select: parsedFields };
   }
 
