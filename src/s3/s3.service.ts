@@ -1,6 +1,6 @@
 import { S3, config as AWSConfig } from 'aws-sdk';
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
-import { config } from '../config/configuration-expert';
+import config from '../config/configuration-expert';
 
 export enum S3ObjectTypesEnum {
   AUCTION_PHOTO = 'auction',

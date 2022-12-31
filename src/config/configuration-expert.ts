@@ -1,24 +1,10 @@
 import * as localConfig from 'config';
-import { DataSource, DataSourceOptions } from 'typeorm';
-import { Logger } from '@nestjs/common';
 
 export class Configuration {
   protected readonly localConfig: any;
-  protected _dataSource: DataSource;
 
   constructor() {
     this.localConfig = localConfig;
-  }
-
-  public set dataSource(ds: DataSource) {
-    this._dataSource = ds;
-  }
-
-  public get dataSource(): DataSource {
-    if (!this._dataSource) {
-      throw new Error('Driver NOT connected');
-    }
-    return this._dataSource;
   }
 
   public getRedisConfig(): object {
@@ -49,24 +35,4 @@ export class Configuration {
   }
 }
 
-export class ConfigurationExpert {
-  private readonly _config: Configuration;
-
-  constructor(configManager: Configuration) {
-    this._config = configManager;
-    ConfigurationExpert.initialize(configManager.getOrmConfig.bind(configManager), configManager)
-      .then(() => Logger.log('Driver connected', 'ConfigurationExpert'))
-      .catch((err) => Logger.error('Driver NOT connected' + err.toString(), 'ConfigurationExpert'));
-  }
-
-  private static async initialize<T extends Configuration>(configGetter: () => object, manager: T): Promise<void> {
-    manager.dataSource = await new DataSource(configGetter() as DataSourceOptions).initialize();
-  }
-
-  get config(): Configuration {
-    return this._config;
-  }
-}
-
-const configManager = new Configuration();
-export const config: Configuration = new ConfigurationExpert(configManager).config;
+export default new Configuration();

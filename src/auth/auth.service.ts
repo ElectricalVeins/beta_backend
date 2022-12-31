@@ -1,5 +1,5 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { config } from '../config/configuration-expert';
+import { Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { DataSource } from 'typeorm';
 import { TokenService } from '../jwt-token/jwt-token.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { UserService } from '../user/user.service';
@@ -10,16 +10,12 @@ import { JwtPayload, JwtTokenTypes, UserAuth } from '../types';
 @Injectable()
 export class AuthService {
   constructor(
-    private tokenService: TokenService,
-    private userService: UserService,
-    private refreshTokenService: RefreshTokenService,
-    private mailService: MailService
+    private readonly dataSource: DataSource,
+    private readonly tokenService: TokenService,
+    private readonly userService: UserService,
+    private readonly refreshTokenService: RefreshTokenService,
+    private readonly mailService: MailService
   ) {}
-
-  public validateUserOnSignUp(data: object): boolean {
-    console.log('validate on signup spare func');
-    return true;
-  }
 
   public async signUp(dto: CreateUserDto): Promise<UserAuth> {
     const user = await this.userService.create(dto);
@@ -30,7 +26,11 @@ export class AuthService {
       tier: tier.toString(),
     });
     await this.refreshTokenService.createRecord(refresh, user.id, false);
-    this.mailService.sendConfirmationEmail(user);
+    try {
+      this.mailService.sendConfirmationEmail(user);
+    } catch (e) {
+      Logger.error(e);
+    }
     setTokenCache();
     return {
       user,
@@ -79,7 +79,7 @@ export class AuthService {
     });
     const existingRefreshToken = await this.refreshTokenService.getTokenRecordByValue(refreshToken, user.id);
     /*TODO: use of transactionalEntityManager IS REQUIRED */
-    await config.dataSource.transaction(async () =>
+    await this.dataSource.transaction(async () =>
       Promise.all([
         this.refreshTokenService.deleteRecord(existingRefreshToken),
         this.refreshTokenService.createRecord(refresh, user.id),

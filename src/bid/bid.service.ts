@@ -1,25 +1,24 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { EntityManager, FindManyOptions } from 'typeorm';
+import { DataSource, EntityManager, FindManyOptions } from 'typeorm';
 import { FindOptionsRelations } from 'typeorm/find-options/FindOptionsRelations';
 import { Bid, BidStatusEnum } from './bid.entity';
 import { CreateBidDto } from './dto/create-bid.dto';
 import { JwtPayload } from '../types';
 import { LotService } from '../lot/lot.service';
-import { config } from '../config/configuration-expert';
 import { Lot } from '../lot/lot.entity';
 
 type PossibleNumber = number | string;
 
 @Injectable()
 export class BidService {
-  constructor(private readonly lotService: LotService) {}
+  constructor(private readonly dataSource: DataSource, private readonly lotService: LotService) {}
 
   checkNextBid(actualBid: PossibleNumber, step: PossibleNumber, nextBid: PossibleNumber): boolean {
     return Number(actualBid) + Number(step) > Number(nextBid);
   }
 
   async create(dto: CreateBidDto, user: JwtPayload): Promise<any> {
-    return await config.dataSource.transaction('REPEATABLE READ', async (transactionalEntityManager) => {
+    return await this.dataSource.transaction('REPEATABLE READ', async (transactionalEntityManager) => {
       const lot: Lot = await this.lotService.getOpenLotById(dto.lot, transactionalEntityManager);
       if (user.userid === lot.user.id) {
         throw new BadRequestException('Action is permitted');

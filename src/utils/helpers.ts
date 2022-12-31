@@ -1,6 +1,6 @@
 // import ms from 'ms';
 
-import { config } from '../config/configuration-expert';
+import config from '../config/configuration-expert';
 
 export const timeAccess = config.get('app.jwt.timeAccess');
 export const Mbyte = 1e6;

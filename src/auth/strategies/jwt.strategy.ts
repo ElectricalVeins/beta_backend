@@ -3,7 +3,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { BadRequestException, CACHE_MANAGER, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Cache } from 'cache-manager';
-import { config } from '../../config/configuration-expert';
+import config from '../../config/configuration-expert';
 import { createCacheKey, getSecondsFromConfig, timeAccess } from '../../utils/helpers';
 import { JwtPayload } from '../../types';
 

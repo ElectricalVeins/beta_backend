@@ -1,6 +1,6 @@
 import { registerDecorator, ValidationOptions } from 'class-validator';
 import { EntityTarget } from 'typeorm';
-import { config } from '../../config/configuration-expert';
+// import { config } from '../../config/configuration-expert';
 import { BaseModel } from '../BaseModel';
 // TODO: check logic. check if need this decorator
 function IsEntityExist(entity: EntityTarget<BaseModel>, validationOptions?: ValidationOptions) {
@@ -12,8 +12,10 @@ function IsEntityExist(entity: EntityTarget<BaseModel>, validationOptions?: Vali
       constraints: [],
       validator: {
         async validate(value: string): Promise<boolean> {
-          const record = await config.dataSource.getRepository(entity).findOneBy({ [propertyName]: value });
-          return !record;
+          /* TODO: delete config.dataSource */
+          // const record = await config.dataSource.getRepository(entity).findOneBy({ [propertyName]: value });
+          // return !record;
+          return true;
         },
       },
     });

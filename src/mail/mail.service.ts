@@ -1,6 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import * as nm from 'nodemailer';
-import { config } from '../config/configuration-expert';
+import config from '../config/configuration-expert';
 import { User } from '../user/user.entity';
 import { TokenService } from '../jwt-token/jwt-token.service';
 

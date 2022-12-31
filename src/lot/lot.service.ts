@@ -73,7 +73,8 @@ export class LotService {
   }
 
   async getOpenLotById(id: number, transactionalEntityManager: EntityManager): Promise<Lot> {
-    const entity = await transactionalEntityManager.getRepository(Lot).findOne({
+    const repo = transactionalEntityManager.getRepository(Lot);
+    const entity = await repo.findOne({
       where: { id, status: LotStatusEnum.OPEN },
       relations: { user: true },
     });

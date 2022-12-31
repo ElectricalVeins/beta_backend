@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { DeleteResult, LessThan } from 'typeorm';
 import { RefreshToken } from './token-refresh.entity';
 import { TokenService } from '../jwt-token/jwt-token.service';
-import { config } from '../config/configuration-expert';
+import config from '../config/configuration-expert';
 
 @Injectable()
 export class RefreshTokenService {

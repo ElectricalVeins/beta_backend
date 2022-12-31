@@ -16,7 +16,7 @@ import { Exclude } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
 import { Role, RolesEnum } from '../role/role.entity';
 import { BaseModel } from '../utils/BaseModel';
-import { config } from '../config/configuration-expert';
+import config from '../config/configuration-expert';
 import { RefreshToken } from '../token-refresh/token-refresh.entity';
 import { Tier } from '../tier/tier.entity';
 import { Balance } from '../balance/balance.entity';

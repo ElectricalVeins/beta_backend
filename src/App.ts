@@ -2,7 +2,7 @@ import { config as AWSConfig } from 'aws-sdk';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { ClassSerializerInterceptor, INestApplication, ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app/app.module';
-import { config } from './config/configuration-expert';
+import config from './config/configuration-expert';
 
 export class App {
   private server: INestApplication;

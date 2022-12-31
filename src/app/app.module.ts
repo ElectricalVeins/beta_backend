@@ -3,7 +3,7 @@ import { CacheModule, ClassSerializerInterceptor, Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
 import * as redisStore from 'cache-manager-redis-store';
-import { config } from '../config/configuration-expert';
+import config from '../config/configuration-expert';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AppExceptionsFilter } from '../utils/AppExceptionsFilter';

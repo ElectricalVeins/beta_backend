@@ -1,7 +1,7 @@
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { Cache } from 'cache-manager';
-import { config } from '../config/configuration-expert';
+import config from '../config/configuration-expert';
 import { JwtPayload, JwtTokenTypes } from '../types';
 import { createCacheKey, getSecondsFromConfig } from '../utils/helpers';
 
