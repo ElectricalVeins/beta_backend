@@ -26,17 +26,10 @@ export class UserService {
 
   /*repo*/
   async findOneById(id: number, tier: number): Promise<Partial<User>> {
-    const foundUser = await User.findOne({
-      where: {
-        id,
-        tier: { id: tier },
-      },
+    return await User.findOneOrFail({
+      where: { id, tier: { id: tier } },
       relations: { role: true },
     });
-    if (!foundUser) {
-      throw new NotFoundException();
-    }
-    return foundUser;
   }
 
   async findAll(filter?: FindManyOptions): Promise<Partial<User[]>> {
@@ -52,10 +45,10 @@ export class UserService {
 
   /*end repo*/
 
-  async update(id: number, updateUserDto: UpdateUserDto, tierId: string): Promise<Partial<User>> {
+  async update(id: number, dto: UpdateUserDto, tierId: string): Promise<Partial<User>> {
     const user = await this.findOneById(id, Number(tierId));
-    user.mutate(updateUserDto);
-    return user.save();
+    user.mutate(dto);
+    return await user.save();
   }
 
   async updateUserStatus(id: ID, status: UserStatusEnum, tierId: string): Promise<Partial<User>> {
