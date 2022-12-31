@@ -3,6 +3,7 @@
 import { config } from '../config/configuration-expert';
 
 export const timeAccess = config.get('app.jwt.timeAccess');
+export const Mbyte = 1e6;
 
 export const deleteLastCharInString = (s: string): string => s.slice(0, -1);
 export const deleteFirstCharInString = (s: string): string => s.slice(1);
