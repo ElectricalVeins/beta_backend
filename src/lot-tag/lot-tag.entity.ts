@@ -6,6 +6,6 @@ export class LotTag extends BaseModel {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ unique: true })
   name: string;
 }
