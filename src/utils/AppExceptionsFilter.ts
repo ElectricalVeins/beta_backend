@@ -1,6 +1,13 @@
-import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
+import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { EntityNotFoundError, TypeORMError } from 'typeorm';
+
+type ResponseError = {
+  message: string;
+  statusCode: number;
+  path: string;
+  timestamp: string;
+};
 
 @Catch()
 export class AppExceptionsFilter implements ExceptionFilter {
@@ -12,14 +19,14 @@ export class AppExceptionsFilter implements ExceptionFilter {
     const { httpAdapter } = this.httpAdapterHost;
 
     const ctx = host.switchToHttp();
-    const errorDetails: Record<string, unknown> = {
+    const errorDetails: Partial<ResponseError> = {
       statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+      message: 'Internal Server Error',
     };
 
     if (exception instanceof HttpException) {
       const response: any = exception.getResponse();
       errorDetails.message = typeof response === 'object' ? response?.message : response;
-
       errorDetails.statusCode = exception.getStatus();
     }
 
@@ -33,15 +40,15 @@ export class AppExceptionsFilter implements ExceptionFilter {
       }
     }
 
-    const responseBody: any = {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      message: exception?.message,
+    const responseBody: Partial<ResponseError> = {
       timestamp: new Date().toISOString(),
-      path: httpAdapter.getRequestUrl(ctx.getRequest()),
+      path: httpAdapter.getRequestUrl(ctx.getRequest()) as string,
       ...errorDetails,
     };
-
-    httpAdapter.reply(ctx.getResponse(), responseBody, responseBody.statusCode as number);
+    if (errorDetails.statusCode === 500) {
+      console.error(exception);
+      Logger.error(exception, 'Application Internal Error');
+    }
+    httpAdapter.reply(ctx.getResponse(), responseBody, responseBody.statusCode);
   }
 }
