@@ -9,17 +9,26 @@ import { JwtPayload } from '../types';
 import { UpdateLotDto } from './dto/update-lot.dto';
 import { FindOptionsRelations } from 'typeorm/find-options/FindOptionsRelations';
 import { RolesEnum } from '../role/role.entity';
+import { LotTagService } from '../lot-tag/lot-tag.service';
 
 @Injectable()
 export class LotService {
-  constructor(private readonly s3Service: S3Service, private readonly lotPhotoService: LotPhotoService) {}
+  constructor(
+    private readonly s3Service: S3Service,
+    private readonly lotPhotoService: LotPhotoService,
+    private readonly lotTagServide: LotTagService
+  ) {}
 
   async create(dto: CreateLotDto, user: JwtPayload): Promise<Lot> {
     /*TODO: Check is User active*/
-    const { photos, ...restOfDto } = dto;
-    const draft = Lot.build(new Lot(), { ...restOfDto, user: user.userid });
+    const { photos = [], tags = [], ...restOfDto } = dto;
+    const draft = Lot.build(new Lot(), {
+      ...restOfDto,
+      tags: await this.lotTagServide.bulkCreateOrFindTags(tags),
+      user: { id: user.userid },
+    });
     const lotEntity = await draft.save();
-    if (photos) {
+    if (photos.length) {
       const photoKeys = await Promise.all(
         photos.map(async (photo) => {
           const [key] = await this.s3Service.uploadObjectToBucket(S3ObjectTypesEnum.AUCTION_PHOTO, photo, uuid());

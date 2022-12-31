@@ -1,4 +1,4 @@
-import { IsDateString, IsInt, IsNotEmpty, IsNumber, IsPositive, IsString, Length } from 'class-validator';
+import { IsDateString, IsInt, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, Length } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateLotDto {
@@ -29,7 +29,9 @@ export class CreateLotDto {
   @IsDateString()
   deadline: Date;
 
-  tags: object[];
+  @IsOptional()
+  tags: string[];
 
-  photos: object[];
+  @IsOptional()
+  photos: unknown[];
 }
