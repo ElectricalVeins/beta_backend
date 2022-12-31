@@ -17,8 +17,21 @@ export abstract class BaseModel extends BaseEntity {
 
   mutate(updateDto: object): void {
     Object.keys(updateDto).forEach((key) => {
-      this[key] = updateDto[key] || this[key];
+      if (updateDto[key]) {
+        this[key] = updateDto[key];
+      }
     });
+  }
+
+  async waitRelations(): Promise<this> {
+    const relationsToWait = [];
+    for (const [key, value] of Object.entries(this)) {
+      if (value instanceof Promise) {
+        relationsToWait.push(key);
+      }
+    }
+    await Promise.all(relationsToWait.map(async (key) => this[key]));
+    return this;
   }
 
   cleanUnderscoresProperties(record: object): void {
