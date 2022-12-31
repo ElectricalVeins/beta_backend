@@ -78,7 +78,7 @@ export class AuthService {
       tier: tier.toString(),
     });
     const existingRefreshToken = await this.refreshTokenService.getTokenRecordByValue(refreshToken, user.id);
-
+    /*TODO: use of transactionalEntityManager IS REQUIRED */
     await config.dataSource.transaction(async () =>
       Promise.all([
         this.refreshTokenService.deleteRecord(existingRefreshToken),

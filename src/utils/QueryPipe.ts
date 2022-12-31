@@ -22,7 +22,7 @@ type RawQuery = {
 };
 
 export type QueryPipeOpts = {
-  fields: string[];
+  fields: string[]; // permissible public fields to query
   relations?: string[];
 };
 
