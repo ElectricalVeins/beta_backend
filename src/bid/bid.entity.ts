@@ -5,7 +5,7 @@ import { User } from '../user/user.entity';
 
 export enum BidStatusEnum {
   ACTUAL = 'ACTUAL',
-  BEAT = 'BEAT',
+  OUTBID = 'OUTBID',
   WIN = 'WIN',
 }
 

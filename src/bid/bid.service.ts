@@ -48,8 +48,7 @@ export class BidService {
       if (!isUserCanAffordNewBid) {
         throw new BadRequestException('You dont have enough money to make this bid');
       }
-      const newBid = await this.setNewActualBid(dto, lot, Number(user.userid), transaction);
-      return newBid;
+      return await this.setNewActualBid(dto, lot, Number(user.userid), transaction);
     });
     /* TODO: Emit ws event about new bid to lot owner and other participants */
   }
@@ -58,7 +57,7 @@ export class BidService {
     await transaction
       .createQueryBuilder()
       .update(Bid)
-      .set({ status: BidStatusEnum.BEAT })
+      .set({ status: BidStatusEnum.OUTBID })
       .where('lot = :lotId', { lotId: lot.id })
       .execute();
     return await transaction.save(Bid.build(new Bid(), { ...bid, user: { id: userId } }));

@@ -23,7 +23,7 @@ export class addauctionbaseentities1672269909785 implements MigrationInterface {
                                  "createDate"   TIMESTAMP         NOT NULL DEFAULT now(),
                                  CONSTRAINT "PK_2ba293e2165c7b93cd766c8ac9b" PRIMARY KEY ("id")
                              )`);
-    await queryRunner.query(`CREATE TYPE "public"."bid_status_enum" AS ENUM('ACTUAL', 'BEAT', 'WIN')`);
+    await queryRunner.query(`CREATE TYPE "public"."bid_status_enum" AS ENUM('ACTUAL', 'OUTBID', 'WIN')`);
     await queryRunner.query(`CREATE TABLE "bid"
                              (
                                  "id"         SERIAL                     NOT NULL,
@@ -69,5 +69,4 @@ export class addauctionbaseentities1672269909785 implements MigrationInterface {
     await queryRunner.query(`DROP TABLE "lot"`);
     await queryRunner.query(`DROP TABLE "lot_tag"`);
   }
-
 }
