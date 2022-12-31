@@ -9,7 +9,7 @@ import { JwtPayload } from '../types';
 
 const BidQueryParser = (): MethodDecorator =>
   QueryParser(Bid, {
-    fields: ['id', 'bid', 'status', 'lastModified', 'createDate'],
+    fields: ['id', 'bid', 'status', 'createDate'],
     relations: ['lot', 'user'],
   });
 
