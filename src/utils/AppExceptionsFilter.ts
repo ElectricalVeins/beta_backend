@@ -1,6 +1,6 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
-import { TypeORMError } from 'typeorm';
+import { EntityNotFoundError, TypeORMError } from 'typeorm';
 
 @Catch()
 export class AppExceptionsFilter implements ExceptionFilter {
@@ -24,7 +24,10 @@ export class AppExceptionsFilter implements ExceptionFilter {
     }
 
     if (exception instanceof TypeORMError) {
-      if (exception.message.includes('duplicate key value violates unique constraint')) {
+      if (exception instanceof EntityNotFoundError) {
+        errorDetails.message = 'Resource not found';
+        errorDetails.statusCode = 404;
+      } else if (exception.message.includes('duplicate key value violates unique constraint')) {
         errorDetails.message = 'Email or login already exists';
         errorDetails.statusCode = 400;
       }
