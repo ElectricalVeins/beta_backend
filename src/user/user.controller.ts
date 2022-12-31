@@ -11,7 +11,7 @@ import { JwtPayload } from '../types';
 const UserQueryParser = (): MethodDecorator =>
   QueryParser(User, {
     fields: ['id', 'login', 'email', 'status', 'lastModified', 'createDate'],
-    relations: ['role'],
+    relations: ['role', 'tier', 'lots', 'bids', 'balance'],
   });
 
 @Controller('users')
@@ -22,7 +22,7 @@ export class UserController {
   @UserQueryParser()
   @UseGuards(JwtAuthGuard)
   findAll(@Query() opts: object, @Request() r): Promise<Partial<User[]>> {
-    console.log(r);
+    // console.log(r);
     return this.userService.findAll(opts);
   }
 
@@ -40,7 +40,7 @@ export class UserController {
 
   @Put(':id')
   @UseGuards(JwtAuthGuard)
-  //@UseInterceptors(FileInterceptor('user-photo'))
+  //@UseInterceptors(FileInterceptor('user-photo',{ limits: { fileSize: Mbyte, files: 6 } }))
   update(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
