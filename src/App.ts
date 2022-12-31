@@ -1,4 +1,4 @@
-import AWS from 'aws-sdk';
+import { config as AWSConfig } from 'aws-sdk';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { ClassSerializerInterceptor, INestApplication, ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app/app.module';
@@ -23,7 +23,7 @@ export class App {
     );
     server.useGlobalInterceptors(new ClassSerializerInterceptor(server.get(Reflector), { excludePrefixes: ['__'] }));
     server.useLogger(config.get('app.logs.level'));
-    AWS.config.update(config.get('aws'));
+    AWSConfig.update(config.get('aws'));
     return new App(server);
   }
 
