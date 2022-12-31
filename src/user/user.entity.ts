@@ -79,7 +79,7 @@ export class User extends BaseModel {
   @ManyToOne(() => Tier, (tier) => tier.user, { nullable: false })
   tier: Tier;
 
-  @OneToOne(() => Balance, { nullable: false })
+  @OneToOne(() => Balance, (balance) => balance.user, { nullable: false })
   @JoinColumn()
   balance: Balance;
 

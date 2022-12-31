@@ -1,5 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, Entity, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { BaseModel } from '../utils/BaseModel';
+import { User } from '../user/user.entity';
 
 enum BalanceStatus {
   OK = 'OK',
@@ -20,4 +21,7 @@ export class Balance extends BaseModel {
 
   @UpdateDateColumn()
   lastModified: Date;
+
+  @OneToOne(() => User, (user) => user.balance, { nullable: false })
+  user: User;
 }
