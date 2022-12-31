@@ -39,7 +39,7 @@ export class UserService {
   async findOneByLoginOrEmail(search: string): Promise<Partial<User>> {
     return await User.findOne({
       where: [{ login: search }, { email: search }],
-      relations: { role: true },
+      relations: { role: true, tier: true },
     });
   }
 
