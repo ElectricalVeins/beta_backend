@@ -6,9 +6,9 @@ Magic layer, pipe, made for parsing the query string into the object  readable b
 
 - Sorting
 - Pagination
-- Filtering(TBD)
-- Selecting fields(TBD)
-- Loading object relations(TBD)
+- Filtering
+- Selecting fields(TBD for relations)
+- Querying relations and nested relations
 
 ### Options
 

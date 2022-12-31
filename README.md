@@ -71,7 +71,6 @@ $ yarn run test:cov
 - [Architecture](./docs/architecture.md)
 - [Query](./docs/query.md)
 - [Tasks](./docs/tasks.md)
-- [Entities](./docs/entities.md)
 
 # IDEAS
 

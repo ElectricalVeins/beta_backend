@@ -4,7 +4,9 @@ Each layer performs a specific role in application.
 
 ### Existing layers are:
 
-- controller
-- service
-- repository (TBD)
-- model
+- Serialization Interceptor
+- QueryParser Pipe
+- Controller
+- Service
+- Repository (TBD)
+- Model
