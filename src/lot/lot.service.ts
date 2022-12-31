@@ -8,6 +8,7 @@ import { CreateLotDto } from './dto/create-lot.dto';
 import { JwtPayload } from '../types';
 import { UpdateLotDto } from './dto/update-lot.dto';
 import { FindOptionsRelations } from 'typeorm/find-options/FindOptionsRelations';
+import { RolesEnum } from '../role/role.entity';
 
 @Injectable()
 export class LotService {
@@ -51,10 +52,10 @@ export class LotService {
     return entity.remove();
   }
 
-  async update(id: number, dto: UpdateLotDto, user: JwtPayload): Promise<any> {
-    const lot = await this.findOneById(id, { user: true });
-    if (lot.user.id !== user.userid) {
-      throw new BadRequestException('You dont have rights!');
+  async update(id: number, dto: UpdateLotDto, user: JwtPayload): Promise<Lot> {
+    const lot = await this.findOneById(id);
+    if (lot.userId !== user.userid || user.role !== RolesEnum.ADMIN) {
+      throw new BadRequestException('You dont have rights');
     }
     if (lot.photos.length) {
       throw new NotImplementedException('TBD'); // TODO: deliver feature

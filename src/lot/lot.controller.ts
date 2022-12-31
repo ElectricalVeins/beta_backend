@@ -70,10 +70,6 @@ export class LotController {
     @Body() updateLotDto: UpdateLotDto,
     @CurrentUser() user: JwtPayload
   ): Promise<any> {
-    // Only Admin can delete. TODO: user can delete(or disable) own lots without bids
-    if (user.role !== RolesEnum.ADMIN) {
-      throw new BadRequestException('Not enough rights');
-    }
     return this.lotService.update(Number(id), updateLotDto, user);
   }
 }
