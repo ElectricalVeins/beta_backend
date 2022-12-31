@@ -20,12 +20,15 @@ export class Bid extends BaseModel {
   @Column({ type: 'enum', enum: BidStatusEnum, default: BidStatusEnum.ACTUAL })
   status: BidStatusEnum;
 
+  @Column()
+  userId: number;
+
   @CreateDateColumn()
   createDate: Date;
 
   @ManyToOne(() => Lot, (lot) => lot.bids, { nullable: false })
   lot: Lot;
 
-  @ManyToOne(() => User, (user) => user.bids, { nullable: false, eager: true })
+  @ManyToOne(() => User, (user) => user.bids, { nullable: false })
   user: User;
 }
