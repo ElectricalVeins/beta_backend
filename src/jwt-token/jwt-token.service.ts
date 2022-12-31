@@ -3,7 +3,7 @@ import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { Cache } from 'cache-manager';
 import { config } from '../config/configuration-expert';
 import { JwtPayload, JwtTokenTypes } from '../types';
-import { createKey, getSecondsFromConfig } from '../utils/helpers';
+import { createCacheKey, getSecondsFromConfig } from '../utils/helpers';
 
 export const JwtOptions: Record<JwtTokenTypes, JwtSignOptions> = {
   [JwtTokenTypes.ACCESS]: {
@@ -53,7 +53,7 @@ export class TokenService {
       this.jwtService.signAsync(payload, JwtOptions[JwtTokenTypes.REFRESH]),
     ]);
     const { iat } = this.getTokenPayload(access);
-    const setCache = this.cacheManager.set.bind(this, createKey(payload.userid, iat), access, {
+    const setCache = this.cacheManager.set.bind(this, createCacheKey(payload.userid, iat), access, {
       ttl: getSecondsFromConfig(JwtOptions.ACCESS.expiresIn as string),
     });
     return [[access, refresh], setCache];

@@ -4,7 +4,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { BadRequestException, CACHE_MANAGER, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { config } from '../../config/configuration-expert';
-import { createKey, getSecondsFromConfig, timeAccess } from '../../utils/helpers';
+import { createCacheKey, getSecondsFromConfig, timeAccess } from '../../utils/helpers';
 import { JwtPayload } from '../../types';
 
 @Injectable()
@@ -22,7 +22,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: JwtPayload): Promise<object> {
     /*Check access token in whitelist*/
-    const token = await this.cacheManager.get(createKey(payload.userid, payload['iat']));
+    const token = await this.cacheManager.get(createCacheKey(payload.userid, payload['iat']));
     if (!token) {
       throw new BadRequestException('Invalid token');
     }
