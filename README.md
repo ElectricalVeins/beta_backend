@@ -2,7 +2,7 @@
 - Linux (Ubuntu 20.04 or newer)
 - Docker
 - Docker-compose | docker compose
-- Node 16
+- Node 18
 - yarn
 
 ## Installation
