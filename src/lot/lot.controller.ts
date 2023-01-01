@@ -23,11 +23,8 @@ import { JwtPayload } from '../types';
 import { RolesEnum } from '../role/role.entity';
 import { Mbyte } from '../utils/helpers';
 
-const LotQueryParser = (): MethodDecorator =>
-  QueryParser(Lot, {
-    fields: ['id', 'name', 'description', 'price', 'minimalPrice', 'step', 'deadline', 'lastModified', 'createDate'],
-    relations: ['tags', 'bids', 'photos', 'user', 'bids.user'],
-  });
+/*nested relations: bids.user*/
+const LotQueryParser = (): MethodDecorator => QueryParser(Lot);
 
 const PhotosInterceptor = UseInterceptors(FileInterceptor('photos', { limits: { fileSize: Mbyte, files: 6 } }));
 

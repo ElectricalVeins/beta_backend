@@ -24,8 +24,8 @@ type RawQuery = {
 };
 
 export type QueryPipeOpts = {
-  fields: string[]; // permissible public fields to query
-  relations?: string[];
+  fields: string[];
+  relations: string[];
 };
 
 export enum SearchOperators {

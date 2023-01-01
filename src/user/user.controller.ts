@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Put, Query, UseGuards, Request, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Get, Param, Put, Query, UseGuards, BadRequestException } from '@nestjs/common';
 import { User } from './user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
@@ -8,11 +8,7 @@ import { CurrentUser } from '../utils/decorator/CurrentUser';
 import { RolesEnum } from '../role/role.entity';
 import { JwtPayload } from '../types';
 
-const UserQueryParser = (): MethodDecorator =>
-  QueryParser(User, {
-    fields: ['id', 'login', 'email', 'status', 'lastModified', 'createDate'],
-    relations: ['role', 'tier', 'lots', 'bids', 'balance'],
-  });
+const UserQueryParser = (): MethodDecorator => QueryParser(User);
 
 @Controller('users')
 export class UserController {
@@ -21,8 +17,7 @@ export class UserController {
   @Get()
   @UserQueryParser()
   @UseGuards(JwtAuthGuard)
-  findAll(@Query() opts: object, @Request() r): Promise<Partial<User[]>> {
-    // console.log(r);
+  findAll(@Query() opts: object): Promise<Partial<User[]>> {
     return this.userService.findAll(opts);
   }
 

@@ -14,9 +14,11 @@ import {
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
-import { Role } from '../role/role.entity';
-import { BaseModel } from '../utils/BaseModel';
 import config from '../config/configuration-expert';
+import { BaseModel } from '../utils/BaseModel';
+import ApiProperty from '../utils/decorator/ApiProperty';
+import ApiRelation from '../utils/decorator/ApiRelation';
+import { Role } from '../role/role.entity';
 import { RefreshToken } from '../token-refresh/token-refresh.entity';
 import { Tier } from '../tier/tier.entity';
 import { Balance } from '../balance/balance.entity';
@@ -40,9 +42,11 @@ export async function hashPassword(): Promise<void> {
 
 @Entity()
 export class User extends BaseModel {
+  @ApiProperty()
   @PrimaryGeneratedColumn()
   id: number;
 
+  @ApiProperty()
   @Index({ unique: true })
   @Column()
   login: string;
@@ -51,9 +55,11 @@ export class User extends BaseModel {
   @Exclude()
   password: string;
 
+  @ApiProperty()
   @Column({ unique: true })
   email: string;
 
+  @ApiProperty()
   @Column({
     type: 'enum',
     default: UserStatusEnum.INACTIVE,
@@ -61,15 +67,19 @@ export class User extends BaseModel {
   })
   status: UserStatusEnum;
 
+  @ApiProperty()
   @Column({ nullable: true })
   preferredTimezone: string;
 
+  @ApiProperty()
   @UpdateDateColumn()
   lastModified: Date;
 
+  @ApiProperty()
   @CreateDateColumn()
   createDate: Date;
 
+  @ApiRelation()
   @ManyToOne(() => Role, (role) => role.users, { nullable: false })
   role: Role;
 
@@ -77,15 +87,19 @@ export class User extends BaseModel {
   refreshTokens: RefreshToken;
 
   @ManyToOne(() => Tier, (tier) => tier.user, { nullable: false })
+  @ApiRelation()
   tier: Tier;
 
+  @ApiRelation()
   @OneToOne(() => Balance, (balance) => balance.user, { nullable: false })
   @JoinColumn()
   balance: Balance;
 
+  @ApiRelation()
   @OneToMany(() => Bid, (bid) => bid.user)
   bids: Bid[];
 
+  @ApiRelation()
   @OneToMany(() => Lot, (lot) => lot.user)
   lots: Lot[];
 

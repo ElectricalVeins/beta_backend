@@ -7,11 +7,7 @@ import { QueryParser } from '../utils/decorator/QueryParser';
 import { CurrentUser } from '../utils/decorator/CurrentUser';
 import { JwtPayload } from '../types';
 
-const BidQueryParser = (): MethodDecorator =>
-  QueryParser(Bid, {
-    fields: ['id', 'bid', 'status', 'createDate'],
-    relations: ['lot', 'user'],
-  });
+const BidQueryParser = (): MethodDecorator => QueryParser(Bid);
 
 @Controller('bids')
 @UseGuards(JwtAuthGuard)
