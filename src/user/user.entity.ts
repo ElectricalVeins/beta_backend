@@ -14,7 +14,7 @@ import {
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
-import { Role, RolesEnum } from '../role/role.entity';
+import { Role } from '../role/role.entity';
 import { BaseModel } from '../utils/BaseModel';
 import config from '../config/configuration-expert';
 import { RefreshToken } from '../token-refresh/token-refresh.entity';
@@ -71,7 +71,7 @@ export class User extends BaseModel {
   createDate: Date;
 
   @ManyToOne(() => Role, (role) => role.users, { nullable: false })
-  role: RolesEnum;
+  role: Role;
 
   @OneToMany(() => RefreshToken, (token) => token.user)
   refreshTokens: RefreshToken;
