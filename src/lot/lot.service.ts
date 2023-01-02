@@ -111,12 +111,21 @@ export class LotService implements OnApplicationBootstrap {
         bids: [bid],
         userId: receiver,
       } = lot;
-      const { userId: payer, bid: moneyAmount } = bid;
+      const { userId: payer, bid: moneyAmount, id: bidId } = bid;
       if (bid) {
         await this.bidService.setWinBid(bid, transaction);
       }
-      await this.userService.transferMoney(payer, receiver, moneyAmount, transaction);
-      await transaction.getRepository(Lot).update(lot.id, { status: LotStatusEnum.CLOSED });
+      await this.userService.accrueMoneyForLot(
+        {
+          bidId,
+          payerId: payer,
+          receiverId: receiver,
+          amount: moneyAmount,
+          lotId: lotId,
+        },
+        transaction
+      );
+      await transaction.getRepository(Lot).update(lotId, { status: LotStatusEnum.CLOSED });
       /* TODO: Emit ws event about lot status update to lot owner and other participants */
     });
   }

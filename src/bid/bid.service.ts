@@ -31,7 +31,7 @@ export class BidService {
       }
       const actualLotBid: Bid = await this.getActualBid(lot.id, transaction);
       if (actualLotBid.userId === user.userid) {
-        throw new BadRequestException('You can`t beat your own bid');
+        throw new BadRequestException('You can`t outbid your own bid');
       }
       if (this.checkNextBid(actualLotBid?.bid || lot.minimalPrice, actualLotBid?.bid ? lot.step : 0, dto.bid)) {
         throw new BadRequestException('Your bid is too small for this lot');
@@ -45,23 +45,46 @@ export class BidService {
         bidDiff,
         transaction
       );
-      /*TODO: add info to transaction table*/
       if (!isUserCanAffordNewBid) {
         throw new BadRequestException('You dont have enough money to make this bid');
       }
-      return await this.setNewActualBid(dto, lot, Number(user.userid), transaction);
+      return await this.setNewActualBid(dto, lot, actualLotBid?.bid, Number(user.userid), transaction);
     });
     /* TODO: Emit ws event about new bid to lot owner and other participants */
   }
 
-  async setNewActualBid(bid: CreateBidDto, lot: Lot, userId: number, transaction: EntityManager): Promise<Bid> {
+  async setNewActualBid(
+    bid: CreateBidDto,
+    lot: Lot,
+    oldBid: number,
+    userId: number,
+    transaction: EntityManager
+  ): Promise<Bid> {
     await transaction
       .createQueryBuilder()
       .update(Bid)
       .set({ status: BidStatusEnum.OUTBID })
       .where('lot = :lotId', { lotId: lot.id })
       .execute();
-    return await transaction.save(Bid.build(new Bid(), { ...bid, user: { id: userId } }));
+    await this.balanceService.declineTransactionForOutbid(
+      {
+        payerId: userId,
+        lotId: lot.id,
+        amount: oldBid,
+      },
+      transaction
+    );
+    const newActualBid = await transaction.save(Bid.build(new Bid(), { ...bid, user: { id: userId } }));
+    await this.balanceService.blockAmountForBid(
+      {
+        bidId: newActualBid.id,
+        payerId: Number(newActualBid.userId),
+        lotId: lot.id,
+        amount: newActualBid.bid,
+      },
+      transaction
+    );
+    return newActualBid;
   }
 
   async getActualBid(lotId: number, transaction: EntityManager): Promise<Bid> {

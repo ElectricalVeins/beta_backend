@@ -1,10 +1,35 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { Balance } from './balance.entity';
 import { Bid } from '../bid/bid.entity';
+import { TransactionService } from '../transactions/transaction.service';
+import { Transaction, TransactionEntityNames, TransactionTypeEnum } from '../transactions/transaction.entity';
+
+export type AccruePayload = {
+  lotId: number;
+  bidId: number;
+  amount: number;
+  receiverId: number;
+  payerId: number;
+};
+
+export type BlockedTransactionPayload = {
+  lotId: number;
+  bidId: number;
+  amount: number;
+  payerId: number;
+};
+
+export type DeclineBlockedTransactionPayload = {
+  lotId: number;
+  payerId: number;
+  amount: number;
+};
 
 @Injectable()
 export class BalanceService {
+  constructor(private readonly transactionService: TransactionService) {}
+
   async checkUserBalance(
     userId: number,
     actualBids: Bid[],
@@ -16,19 +41,61 @@ export class BalanceService {
     return userBalance.amount - blockedAmount >= 0;
   }
 
-  async transferMoney(payer: number, receiver: number, amount: number, transaction: EntityManager): Promise<void> {
-    const repo = transaction.getRepository(Balance);
-    /*TODO: add info to transaction table*/
-    const [payerBalance, receiverBalance] = await Promise.all([
-      repo.findOne({ where: { user: { id: payer } } }),
-      repo.findOne({ where: { user: { id: receiver } } }),
-    ]);
-    if (payerBalance.amount - amount < 0) {
-      /*TODO: if true - decide what to do. Finish auction with another winner, finish without winner and just close Or block a user money from balance to secure logic from this flow*/
-      // throw new BadRequestException('Payer doesnt have enough money');
-      Logger.error('Payer doesnt have enough money', 'BalanceService');
+  async changeUserBalance(
+    payload: { userId: number; amount: number },
+    isIncome: boolean,
+    transactionManager: EntityManager
+  ): Promise<void> {
+    const { userId, amount } = payload;
+    const repo = transactionManager.getRepository(Balance);
+    const balance = await repo.findOneBy({ user: { id: userId } });
+    const newAmount = isIncome ? balance.amount + amount : balance.amount - amount;
+    const { affected } = await repo.update(balance.id, { amount: newAmount });
+    if (!affected) {
+      Logger.warn(`Didn't found balance for user(${userId})`, 'BalanceService');
+      throw new BadRequestException(`Didn't found balance for user: ${userId}`);
     }
-    await repo.update(payer, { amount: payerBalance.amount - amount });
-    await repo.update(payer, { amount: receiverBalance.amount + amount });
+  }
+
+  async accrueMoneyForLot(payload: AccruePayload, transactionManager: EntityManager): Promise<Transaction> {
+    const { receiverId, lotId, amount } = payload;
+    await this.transactionService.confirmBlockedTransaction(payload, transactionManager);
+    await this.changeUserBalance({ userId: receiverId, amount }, true, transactionManager);
+    return await this.transactionService.create(
+      {
+        amount,
+        userId: receiverId,
+        description: `Add amount(${amount}) for lot(${lotId})`,
+        transactionType: TransactionTypeEnum.INCOME,
+        entityId: lotId,
+        entityName: TransactionEntityNames.LOT,
+      },
+      transactionManager
+    );
+  }
+
+  async blockAmountForBid(payload: BlockedTransactionPayload, transactionManager: EntityManager): Promise<Transaction> {
+    const { bidId, payerId, amount, lotId } = payload;
+    await this.changeUserBalance({ userId: payerId, amount }, false, transactionManager);
+    return await this.transactionService.create(
+      {
+        amount,
+        userId: payerId,
+        description: `Block amount(${amount}) for bid(${bidId})`,
+        transactionType: TransactionTypeEnum.BLOCKED,
+        entityId: lotId,
+        entityName: TransactionEntityNames.LOT,
+      },
+      transactionManager
+    );
+  }
+
+  async declineTransactionForOutbid(
+    payload: DeclineBlockedTransactionPayload,
+    transactionManager: EntityManager
+  ): Promise<void> {
+    const { payerId, amount } = payload;
+    await this.transactionService.declineBlockedTransaction(payload, transactionManager);
+    await this.changeUserBalance({ userId: payerId, amount }, true, transactionManager);
   }
 }

@@ -8,10 +8,12 @@ export enum TransactionTypeEnum {
   INCOME = 'INCOME',
   EXPENSE = 'EXPENSE',
   BLOCKED = 'BLOCKED',
+  DECLINED = 'DECLINED',
 }
 
 export enum TransactionEntityNames {
   BID = 'BID',
+  LOT = 'LOT',
 }
 
 @Entity()
