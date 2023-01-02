@@ -45,6 +45,7 @@ export class BidService {
         bidDiff,
         transaction
       );
+      /*TODO: add info to transaction table*/
       if (!isUserCanAffordNewBid) {
         throw new BadRequestException('You dont have enough money to make this bid');
       }

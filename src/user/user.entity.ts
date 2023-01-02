@@ -24,6 +24,7 @@ import { Tier } from '../tier/tier.entity';
 import { Balance } from '../balance/balance.entity';
 import { Bid } from '../bid/bid.entity';
 import { Lot } from '../lot/lot.entity';
+import { Transaction } from '../transactions/transaction.entity';
 
 const SALT = config.get('app.security.salt');
 
@@ -102,6 +103,10 @@ export class User extends BaseModel {
   @ApiRelation()
   @OneToMany(() => Lot, (lot) => lot.user)
   lots: Lot[];
+
+  @ApiRelation()
+  @OneToMany(() => Transaction, (t) => t.user)
+  transactions: Transaction[];
 
   @BeforeInsert()
   @BeforeUpdate()

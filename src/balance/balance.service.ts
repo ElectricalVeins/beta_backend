@@ -18,9 +18,10 @@ export class BalanceService {
 
   async transferMoney(payer: number, receiver: number, amount: number, transaction: EntityManager): Promise<void> {
     const repo = transaction.getRepository(Balance);
+    /*TODO: add info to transaction table*/
     const [payerBalance, receiverBalance] = await Promise.all([
-      repo.findOne({ where: { userId: payer } }),
-      repo.findOne({ where: { userId: receiver } }),
+      repo.findOne({ where: { user: { id: payer } } }),
+      repo.findOne({ where: { user: { id: receiver } } }),
     ]);
     if (payerBalance.amount - amount < 0) {
       /*TODO: if true - decide what to do. Finish auction with another winner, finish without winner and just close Or block a user money from balance to secure logic from this flow*/
