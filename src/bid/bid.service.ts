@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable } from '@nestjs/common';
 import { DataSource, EntityManager, FindManyOptions } from 'typeorm';
 import { FindOptionsRelations } from 'typeorm/find-options/FindOptionsRelations';
 import { Bid, BidStatusEnum } from './bid.entity';
@@ -14,7 +14,7 @@ type PossibleNumber = number | string;
 export class BidService {
   constructor(
     private readonly dataSource: DataSource,
-    private readonly lotService: LotService,
+    @Inject(forwardRef(() => LotService)) private readonly lotService: LotService,
     private readonly balanceService: BalanceService
   ) {}
 

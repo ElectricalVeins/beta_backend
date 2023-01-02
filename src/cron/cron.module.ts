@@ -1,10 +1,9 @@
 import { Module } from '@nestjs/common';
 import { CronService } from './cron.service';
 import { RefreshTokenModule } from '../token-refresh/token-refresh.module';
-import { LotModule } from '../lot/lot.module';
 
 @Module({
-  imports: [RefreshTokenModule, LotModule],
+  imports: [RefreshTokenModule],
   providers: [CronService],
   exports: [CronService],
 })

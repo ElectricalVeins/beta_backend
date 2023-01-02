@@ -2,6 +2,8 @@ import { v4 as uuid } from 'uuid';
 import { differenceInMilliseconds } from 'date-fns';
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
@@ -36,7 +38,7 @@ export class LotService implements OnApplicationBootstrap {
     private readonly s3Service: S3Service,
     private readonly lotPhotoService: LotPhotoService,
     private readonly lotTagService: LotTagService,
-    private readonly bidService: BidService,
+    @Inject(forwardRef(() => BidService)) private readonly bidService: BidService,
     private readonly userService: UserService
   ) {}
 

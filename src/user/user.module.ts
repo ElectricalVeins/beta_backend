@@ -5,9 +5,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './user.entity';
 import { RoleModule } from '../role/role.module';
 import { TierModule } from '../tier/tier.module';
+import { BalanceModule } from '../balance/balance.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), RoleModule, TierModule],
+  imports: [TypeOrmModule.forFeature([User]), RoleModule, TierModule, BalanceModule],
   controllers: [UserController],
   providers: [UserService],
   exports: [UserService],
