@@ -19,6 +19,9 @@ export class Balance extends BaseModel {
   @Column({ type: 'enum', enum: BalanceStatus, default: BalanceStatus.UNAPPROVED })
   status: BalanceStatus;
 
+  @Column()
+  userId: number;
+
   @UpdateDateColumn()
   lastModified: Date;
 

@@ -1,30 +1,62 @@
 import { v4 as uuid } from 'uuid';
-import { BadRequestException, Injectable, Logger, NotFoundException, NotImplementedException } from '@nestjs/common';
-import { EntityManager, FindManyOptions } from 'typeorm';
-import { Lot, LotStatusEnum } from './lot.entity';
+import { differenceInMilliseconds } from 'date-fns';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+  NotImplementedException,
+  OnApplicationBootstrap,
+} from '@nestjs/common';
+import { SchedulerRegistry } from '@nestjs/schedule';
+import { DataSource, EntityManager, FindManyOptions } from 'typeorm';
+import { FindOptionsRelations } from 'typeorm/find-options/FindOptionsRelations';
 import { S3ObjectTypesEnum, S3Service } from '../s3/s3.service';
 import { LotPhotoService } from '../lot-photo/lot-photo.service';
-import { CreateLotDto } from './dto/create-lot.dto';
-import { JwtPayload } from '../types';
-import { UpdateLotDto } from './dto/update-lot.dto';
-import { FindOptionsRelations } from 'typeorm/find-options/FindOptionsRelations';
-import { RolesEnum } from '../role/role.entity';
 import { LotTagService } from '../lot-tag/lot-tag.service';
+import { BidService } from '../bid/bid.service';
+import { UserService } from '../user/user.service';
+import { JwtPayload } from '../types';
+import { CreateLotDto } from './dto/create-lot.dto';
+import { UpdateLotDto } from './dto/update-lot.dto';
+import { Lot, LotStatusEnum } from './lot.entity';
+import { RolesEnum } from '../role/role.entity';
+import { BidStatusEnum } from '../bid/bid.entity';
+
+export type LotTimerPayload = {
+  id: number;
+  milliseconds: number;
+};
 
 @Injectable()
-export class LotService {
+export class LotService implements OnApplicationBootstrap {
   constructor(
+    private readonly dataSource: DataSource,
+    private readonly schedulerRegistry: SchedulerRegistry,
     private readonly s3Service: S3Service,
     private readonly lotPhotoService: LotPhotoService,
-    private readonly lotTagServide: LotTagService
+    private readonly lotTagService: LotTagService,
+    private readonly bidService: BidService,
+    private readonly userService: UserService
   ) {}
+
+  async onApplicationBootstrap(): Promise<void> {
+    await this.startLotTimers();
+  }
+
+  private static getTimerPayloadFromLot(lot: Lot): LotTimerPayload {
+    return {
+      id: lot.id,
+      milliseconds: differenceInMilliseconds(new Date(), new Date(lot.deadline)),
+    };
+  }
 
   async create(dto: CreateLotDto, user: JwtPayload): Promise<Lot> {
     /*TODO: Check is User active*/
     const { photos = [], tags = [], ...restOfDto } = dto;
     const draft = Lot.build(new Lot(), {
       ...restOfDto,
-      tags: await this.lotTagServide.bulkCreateOrFindTags(tags),
+      tags: await this.lotTagService.bulkCreateOrFindTags(tags),
       user: { id: user.userid },
     });
     const lotEntity = await draft.save();
@@ -38,6 +70,7 @@ export class LotService {
       lotEntity.photos = await this.lotPhotoService.bulkCreateByKeys(photoKeys, lotEntity.userId);
       await lotEntity.save();
     }
+    this.startLotTimer(LotService.getTimerPayloadFromLot(lotEntity));
     return lotEntity;
   }
 
@@ -64,8 +97,40 @@ export class LotService {
     if (lot.photos.length) {
       throw new NotImplementedException('TBD'); // TODO: deliver feature
     }
+    if (dto.deadline) {
+      throw new NotImplementedException('TBD'); // TODO: add deadline update (timers should update)
+    }
     lot.mutate(dto);
     return await lot.save();
+  }
+
+  async closeLot(lotId: number): Promise<void> {
+    await this.dataSource.transaction('REPEATABLE READ', async (transaction) => {
+      const lot: Lot = await this.getOpenLotWithActualBid(lotId, transaction);
+      const {
+        bids: [bid],
+        userId: receiver,
+      } = lot;
+      const { userId: payer, bid: moneyAmount } = bid;
+      if (bid) {
+        await this.bidService.setWinBid(bid, transaction);
+      }
+      await this.userService.transferMoney(payer, receiver, moneyAmount, transaction);
+      await transaction.getRepository(Lot).update(lot.id, { status: LotStatusEnum.CLOSED });
+      /* TODO: Emit ws event about lot status update to lot owner and other participants */
+    });
+  }
+
+  private async startLotTimers(): Promise<void> {
+    const lots = await this.getAllActualLots();
+    const timerPayloads: LotTimerPayload[] = lots.map(LotService.getTimerPayloadFromLot);
+    timerPayloads.forEach(this.startLotTimer);
+    Logger.log(`${timerPayloads.length} timers were created`);
+  }
+
+  startLotTimer(payload: LotTimerPayload): any {
+    const timeout = setTimeout(this.closeLot, payload.milliseconds, payload.id);
+    this.schedulerRegistry.addTimeout(`Lot.Close:${payload.id}`, timeout);
   }
 
   /*repo*/
@@ -80,12 +145,32 @@ export class LotService {
   async getOpenLotById(id: number, transaction: EntityManager): Promise<Lot> {
     const entity = await transaction.getRepository(Lot).findOne({
       where: { id, status: LotStatusEnum.OPEN },
-      relations: { user: true },
+      relations: {},
     });
     if (!entity) {
       throw new NotFoundException('Lot not found or has been closed');
     }
     return entity;
+  }
+
+  async getOpenLotWithActualBid(id: number, transaction: EntityManager): Promise<Lot> {
+    return await transaction.getRepository(Lot).findOne({
+      where: {
+        id,
+        status: LotStatusEnum.OPEN,
+        bids: {
+          status: BidStatusEnum.ACTUAL,
+        },
+      },
+      relations: { bids: true },
+    });
+  }
+
+  async getAllActualLots(): Promise<Lot[]> {
+    return await Lot.find({
+      relations: {},
+      where: { status: LotStatusEnum.OPEN },
+    });
   }
 
   /*end repo*/

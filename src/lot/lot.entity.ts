@@ -20,6 +20,7 @@ import ApiRelation from '../utils/decorator/ApiRelation';
 export enum LotStatusEnum {
   OPEN = 'OPEN',
   CLOSED = 'CLOSED',
+  COMPLETED = 'COMPLETED',
   DISABLED = 'DISABLED',
 }
 
@@ -55,7 +56,7 @@ export class Lot extends BaseModel {
 
   @ApiProperty()
   @Column({ type: 'timestamp' })
-  deadline: Date;
+  deadline: string;
 
   @Column()
   userId: number;

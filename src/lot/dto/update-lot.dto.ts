@@ -16,4 +16,7 @@ export class UpdateLotDto {
   tags: object[];
 
   photos: object[];
+
+  @IsOptional()
+  deadline: string;
 }

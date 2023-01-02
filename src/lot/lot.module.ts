@@ -6,9 +6,11 @@ import { LotPhotoModule } from '../lot-photo/lot-photo.module';
 import { LotService } from './lot.service';
 import { Lot } from './lot.entity';
 import { LotController } from './lot.controller';
+import { BidModule } from '../bid/bid.module';
+import { UserModule } from '../user/user.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Lot]), S3Module, LotPhotoModule, LotTagModule],
+  imports: [TypeOrmModule.forFeature([Lot]), S3Module, LotPhotoModule, LotTagModule, BidModule, UserModule],
   controllers: [LotController],
   providers: [LotService],
   exports: [LotService],

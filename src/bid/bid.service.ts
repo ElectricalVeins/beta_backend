@@ -24,9 +24,9 @@ export class BidService {
 
   async create(dto: CreateBidDto, user: JwtPayload): Promise<any> {
     return await this.dataSource.transaction('REPEATABLE READ', async (transaction) => {
-      /*TODO: Check is User active and Balance Ok*/
+      /*TODO: Check is User active and Balance is Ok status*/
       const lot: Lot = await this.lotService.getOpenLotById(dto.lot, transaction);
-      if (user.userid === lot.user.id) {
+      if (user.userid === lot.userId) {
         throw new BadRequestException('You can`t bid your own lot');
       }
       const actualLotBid: Bid = await this.getActualBid(lot.id, transaction);
@@ -76,6 +76,10 @@ export class BidService {
       where: { user: { id: userId }, status: BidStatusEnum.ACTUAL },
       relations: {},
     });
+  }
+
+  async setWinBid(bid: Bid, transaction: EntityManager): Promise<void> {
+    await transaction.getRepository(Bid).update(bid.id, { status: BidStatusEnum.WIN });
   }
 
   /*repo*/

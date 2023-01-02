@@ -1,16 +1,21 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { FindManyOptions } from 'typeorm';
+import { EntityManager, FindManyOptions } from 'typeorm';
+import { RoleService } from '../role/role.service';
+import { TierService } from '../tier/tier.service';
+import { BalanceService } from '../balance/balance.service';
 import { ID } from '../types';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User, UserStatusEnum } from './user.entity';
 import { RolesEnum } from '../role/role.entity';
-import { RoleService } from '../role/role.service';
-import { TierService } from '../tier/tier.service';
 
 @Injectable()
 export class UserService {
-  constructor(private roleService: RoleService, private tierService: TierService) {}
+  constructor(
+    private roleService: RoleService,
+    private tierService: TierService,
+    private readonly balanceService: BalanceService
+  ) {}
 
   async create(dto: CreateUserDto): Promise<User> {
     const role = await this.roleService.getRoleByName(RolesEnum.USER);
@@ -67,5 +72,9 @@ export class UserService {
 
   async checkPassword(user, checkPassword): Promise<boolean> {
     return User.checkPassword(user, checkPassword);
+  }
+
+  async transferMoney(payer: number, receiver: number, amount: number, transaction: EntityManager): Promise<void> {
+    await this.balanceService.transferMoney(payer, receiver, amount, transaction);
   }
 }
