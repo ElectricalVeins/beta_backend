@@ -21,6 +21,7 @@ import { LotTagModule } from '../lot-tag/lot-tag.module';
 import { BidModule } from '../bid/bid.module';
 import { S3Module } from '../s3/s3.module';
 import { LotPhotoModule } from '../lot-photo/lot-photo.module';
+import { TransactionModule } from '../transactions/transaction.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { LotPhotoModule } from '../lot-photo/lot-photo.module';
     RoleModule,
     UserModule,
     BalanceModule,
+    TransactionModule,
     AuthModule,
     S3Module,
     /*Auction core modules*/
