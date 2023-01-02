@@ -5,7 +5,7 @@ export class addtransaction1672685068983 implements MigrationInterface {
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `CREATE TYPE "public"."transaction_transactiontype_enum" AS ENUM('INCOME', 'EXPENSE', 'BLOCKED')`
+      `CREATE TYPE "public"."transaction_transactiontype_enum" AS ENUM('INCOME', 'EXPENSE', 'BLOCKED', 'DECLINED')`
     );
     await queryRunner.query(`CREATE TABLE "transaction"
                              (
