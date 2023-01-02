@@ -49,7 +49,7 @@ export class LotService implements OnApplicationBootstrap {
   private static getTimerPayloadFromLot(lot: Lot): LotTimerPayload {
     return {
       id: lot.id,
-      milliseconds: differenceInMilliseconds(new Date(), new Date(lot.deadline)),
+      milliseconds: differenceInMilliseconds(new Date(lot.deadline), new Date()),
     };
   }
 
@@ -135,12 +135,12 @@ export class LotService implements OnApplicationBootstrap {
   private async startLotTimers(): Promise<void> {
     const lots = await this.getAllActualLots();
     const timerPayloads: LotTimerPayload[] = lots.map(LotService.getTimerPayloadFromLot);
-    timerPayloads.forEach(this.startLotTimer);
+    timerPayloads.forEach((payload) => this.startLotTimer(payload), LotService);
     Logger.log(`${timerPayloads.length} timers were created`);
   }
 
   startLotTimer(payload: LotTimerPayload): any {
-    const timeout = setTimeout(this.closeLot, payload.milliseconds, payload.id);
+    const timeout = setTimeout(() => this.closeLot(payload.id), payload.milliseconds);
     this.schedulerRegistry.addTimeout(`Lot.Close:${payload.id}`, timeout);
   }
 
