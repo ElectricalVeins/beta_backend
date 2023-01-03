@@ -20,7 +20,7 @@ export class TransactionService {
   }
 
   async confirmBlockedTransaction(payload: AccruePayload, transactionManager: EntityManager): Promise<void> {
-    const { lotId, payerId, amount } = payload;
+    const { lotId, payerId, amount, bidId } = payload;
     const repo = transactionManager.getRepository(Transaction);
     /*Must be one blocked transaction for lot. Other transactions are declined*/
     const result = await repo.update(
@@ -31,7 +31,10 @@ export class TransactionService {
         entityName: TransactionEntityNames.LOT,
         transactionType: TransactionTypeEnum.BLOCKED,
       },
-      { transactionType: TransactionTypeEnum.EXPENSE }
+      {
+        transactionType: TransactionTypeEnum.EXPENSE,
+        description: `Expense (${amount}) for bid(${bidId}) on winning lot(${lotId})`,
+      }
     );
     TransactionService.checkUpdateResult(result, lotId);
   }
