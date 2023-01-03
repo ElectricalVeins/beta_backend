@@ -30,14 +30,16 @@ export class BidService {
         throw new BadRequestException('You can`t bid your own lot');
       }
       const actualLotBid: Bid = await this.getActualBid(lot.id, transaction);
-      if (actualLotBid.userId === user.userid) {
+      const isFirstBid = !Boolean(actualLotBid);
+      const actualBidAmount = isFirstBid ? 0 : actualLotBid.bid;
+      if (!isFirstBid && actualLotBid.userId === user.userid) {
         throw new BadRequestException('You can`t outbid your own bid');
       }
-      if (this.checkNextBid(actualLotBid?.bid || lot.minimalPrice, actualLotBid?.bid ? lot.step : 0, dto.bid)) {
+      if (this.checkNextBid(actualBidAmount || lot.minimalPrice, actualBidAmount ? lot.step : 0, dto.bid)) {
         throw new BadRequestException('Your bid is too small for this lot');
       }
       const allUserActualBids = await this.getActualUserBids(Number(user.userid), transaction);
-      const bidDiff = dto.bid - (actualLotBid?.bid || 0);
+      const bidDiff = dto.bid - actualBidAmount;
       //We can pass a bid diff here to level out current actual lot bid
       const isUserCanAffordNewBid = await this.balanceService.checkUserBalance(
         Number(user.userid),
@@ -48,7 +50,7 @@ export class BidService {
       if (!isUserCanAffordNewBid) {
         throw new BadRequestException('You dont have enough money to make this bid');
       }
-      return await this.setNewActualBid(dto, lot, actualLotBid?.bid, Number(user.userid), transaction);
+      return await this.setNewActualBid(dto, lot, actualLotBid, Number(user.userid), transaction);
     });
     /* TODO: Emit ws event about new bid to lot owner and other participants */
   }
@@ -56,24 +58,26 @@ export class BidService {
   async setNewActualBid(
     bid: CreateBidDto,
     lot: Lot,
-    oldBid: number,
+    oldBidEntity: Bid | null,
     userId: number,
     transaction: EntityManager
   ): Promise<Bid> {
-    await transaction
-      .createQueryBuilder()
-      .update(Bid)
-      .set({ status: BidStatusEnum.OUTBID })
-      .where('lot = :lotId', { lotId: lot.id })
-      .execute();
-    await this.balanceService.declineTransactionForOutbid(
-      {
-        payerId: userId,
-        lotId: lot.id,
-        amount: oldBid,
-      },
-      transaction
-    );
+    if (oldBidEntity) {
+      await transaction
+        .createQueryBuilder()
+        .update(Bid)
+        .set({ status: BidStatusEnum.OUTBID })
+        .where('lot = :lotId', { lotId: lot.id })
+        .execute();
+      await this.balanceService.declineTransactionAfterOutbid(
+        {
+          lotId: lot.id,
+          amount: oldBidEntity.bid,
+          oldPayerId: oldBidEntity.userId,
+        },
+        transaction
+      );
+    }
     const newActualBid = await transaction.save(Bid.build(new Bid(), { ...bid, user: { id: userId } }));
     await this.balanceService.blockAmountForBid(
       {

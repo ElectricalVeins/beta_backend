@@ -22,7 +22,7 @@ export type BlockedTransactionPayload = {
 
 export type DeclineBlockedTransactionPayload = {
   lotId: number;
-  payerId: number;
+  oldPayerId: number;
   amount: number;
 };
 
@@ -81,7 +81,7 @@ export class BalanceService {
       {
         amount,
         userId: payerId,
-        description: `Block amount(${amount}) for bid(${bidId})`,
+        description: `Block amount(${amount}) for bid(${bidId}) on lot(${lotId})`,
         transactionType: TransactionTypeEnum.BLOCKED,
         entityId: lotId,
         entityName: TransactionEntityNames.LOT,
@@ -90,12 +90,12 @@ export class BalanceService {
     );
   }
 
-  async declineTransactionForOutbid(
+  async declineTransactionAfterOutbid(
     payload: DeclineBlockedTransactionPayload,
     transactionManager: EntityManager
   ): Promise<void> {
-    const { payerId, amount } = payload;
+    const { oldPayerId, amount } = payload;
     await this.transactionService.declineBlockedTransaction(payload, transactionManager);
-    await this.changeUserBalance({ userId: payerId, amount }, true, transactionManager);
+    await this.changeUserBalance({ userId: oldPayerId, amount }, true, transactionManager);
   }
 }

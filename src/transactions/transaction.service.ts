@@ -40,13 +40,13 @@ export class TransactionService {
     payload: DeclineBlockedTransactionPayload,
     transactionManager: EntityManager
   ): Promise<void> {
-    const { lotId, payerId, amount } = payload;
+    const { lotId, amount, oldPayerId: user } = payload;
 
     const result = await transactionManager
       .createQueryBuilder()
       .update(Transaction)
       .set({ transactionType: TransactionTypeEnum.DECLINED })
-      .where('user = :payerId', { payerId })
+      .where('user = :user', { user })
       .andWhere('entityId = :entityId', { entityId: lotId })
       .andWhere('entityName = :entityName', { entityName: TransactionEntityNames.LOT })
       .andWhere('transactionType = :type', { type: TransactionTypeEnum.BLOCKED })
