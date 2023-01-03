@@ -29,7 +29,7 @@ export type LotTimerPayload = {
   id: number;
   milliseconds: number;
 };
-
+/*TODO: выкуп лота по цене*/
 @Injectable()
 export class LotService implements OnApplicationBootstrap {
   constructor(

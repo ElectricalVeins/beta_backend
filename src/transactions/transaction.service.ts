@@ -3,7 +3,7 @@ import { EntityManager, UpdateResult } from 'typeorm';
 import { Transaction, TransactionEntityNames, TransactionTypeEnum } from './transaction.entity';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { AccruePayload, DeclineBlockedTransactionPayload } from '../balance/balance.service';
-
+/*TODO: transactions controller*/
 @Injectable()
 export class TransactionService {
   static checkUpdateResult(result: UpdateResult, lotId: number): void {
