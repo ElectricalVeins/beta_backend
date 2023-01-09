@@ -24,6 +24,9 @@ export class Balance extends BaseModel {
   @ApiProperty()
   status: BalanceStatus;
 
+  @Column()
+  userId: number;
+
   @UpdateDateColumn()
   @ApiProperty()
   lastModified: Date;

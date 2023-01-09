@@ -4,6 +4,7 @@ import { Balance } from './balance.entity';
 import { Bid } from '../bid/bid.entity';
 import { TransactionService } from '../transactions/transaction.service';
 import { Transaction, TransactionEntityNames, TransactionTypeEnum } from '../transactions/transaction.entity';
+import { JwtPayload } from 'src/types';
 
 export type AccruePayload = {
   lotId: number;
@@ -29,6 +30,10 @@ export type DeclineBlockedTransactionPayload = {
 @Injectable()
 export class BalanceService {
   constructor(private readonly transactionService: TransactionService) {}
+
+  async getUserBalance(user: JwtPayload) {
+    return Balance.findOneOrFail({ where: { userId: Number(user.userid) } });
+  }
 
   async checkUserBalance(
     userId: number,

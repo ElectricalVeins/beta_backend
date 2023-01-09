@@ -31,5 +31,4 @@ export class adduserbalance1672264106821 implements MigrationInterface {
     await queryRunner.query(`DROP TABLE "balance"`);
     await queryRunner.query(`DROP TYPE "public"."balance_status_enum"`);
   }
-
 }

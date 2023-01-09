@@ -1,9 +1,12 @@
 import { registerDecorator, ValidationOptions } from 'class-validator';
 import { EntityTarget } from 'typeorm';
-// import { config } from '../../config/configuration-expert';
 import { BaseModel } from '../BaseModel';
+
 // TODO: check logic. check if need this decorator
-function IsEntityExist(entity: EntityTarget<BaseModel>, validationOptions?: ValidationOptions) {
+function IsEntityExist(
+  entity: EntityTarget<BaseModel>,
+  validationOptions?: ValidationOptions
+): (object: object, propertyName: string) => void {
   return function (object: object, propertyName: string) {
     registerDecorator({
       target: object.constructor,

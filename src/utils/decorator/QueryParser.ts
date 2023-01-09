@@ -6,7 +6,7 @@ import { API_RELATIONS } from './ApiRelation';
 
 export function QueryParser<M = typeof BaseModel>(model: M): MethodDecorator {
   return UsePipes(
-    new QueryPipe(model, {
+    new QueryPipe({
       relations: model['prototype'][API_RELATIONS],
       fields: model['prototype'][API_PROPERTIES],
     })

@@ -11,9 +11,8 @@ import {
   MoreThanOrEqual,
   Not as NotEquals,
 } from 'typeorm';
-import { BaseModel } from './BaseModel';
 import { deleteFirstCharInString } from './helpers';
-
+/* TODO: add onlyOwnResource flag to allow queries only for user own respurce. Or extract this part to another QuerPipe */
 type RawQuery = {
   sort: string;
   filter: string;
@@ -45,19 +44,17 @@ const MAX_NESTED_RELATIONS_PERMITTED = 2;
 const operators: string[] = Object.values(SearchOperators);
 
 @Injectable()
-class QueryPipe<Model = typeof BaseModel> implements PipeTransform {
-  private readonly model: Model;
+class QueryPipe implements PipeTransform {
   private readonly fields: string[];
   private readonly relations: string[];
 
-  constructor(model: Model, opts: QueryPipeOpts) {
+  constructor(opts: QueryPipeOpts) {
     const { fields = [], relations = [] } = opts;
-    this.model = model;
     this.fields = fields;
     this.relations = relations;
   }
 
-  transform(value: any, metadata: ArgumentMetadata) {
+  transform(value: any, metadata: ArgumentMetadata): any {
     const { type } = metadata;
     if (type === 'query') {
       return this.transformQuery(value as RawQuery);

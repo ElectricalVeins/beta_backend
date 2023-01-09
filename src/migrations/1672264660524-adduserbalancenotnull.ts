@@ -20,5 +20,4 @@ export class adduserbalancenotnull1672264660524 implements MigrationInterface {
     await queryRunner.query(`ALTER TABLE "user"
         ADD CONSTRAINT "FK_122eba7abb932493831f1e0f62b" FOREIGN KEY ("balanceId") REFERENCES "balance" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
   }
-
 }

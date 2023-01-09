@@ -1,7 +1,6 @@
 import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { BaseModel } from '../utils/BaseModel';
 import ApiProperty from '../utils/decorator/ApiProperty';
-import ApiRelation from '../utils/decorator/ApiRelation';
 import { User } from '../user/user.entity';
 
 export enum TransactionTypeEnum {
@@ -43,12 +42,13 @@ export class Transaction extends BaseModel {
   createDate: Date;
 
   @Column({ nullable: true })
+  @ApiProperty()
   entityName: string;
 
   @Column({ nullable: true })
+  @ApiProperty()
   entityId: number;
 
-  @ApiRelation()
   @ManyToOne(() => User, (user) => user.transactions)
   user: User;
 }

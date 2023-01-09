@@ -1,9 +1,11 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { EntityManager, UpdateResult } from 'typeorm';
+import { EntityManager, FindManyOptions, UpdateResult } from 'typeorm';
 import { Transaction, TransactionEntityNames, TransactionTypeEnum } from './transaction.entity';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { AccruePayload, DeclineBlockedTransactionPayload } from '../balance/balance.service';
-/*TODO: transactions controller*/
+import { JwtPayload } from '../types';
+
+/* TODO: admin routes */
 @Injectable()
 export class TransactionService {
   static checkUpdateResult(result: UpdateResult, lotId: number): void {
@@ -13,10 +15,22 @@ export class TransactionService {
     }
   }
 
+  async findAll(opts: FindManyOptions /* user: JwtPayload */): Promise<Transaction[]> {
+    return await Transaction.find(opts);
+  }
+
+  async findOne(id: number, user: JwtPayload): Promise<Transaction> {
+    return await Transaction.findOneByOrFail({ id, userId: Number(user.userid) });
+  }
+
   async create(dto: CreateTransactionDto, transactionManager?: EntityManager): Promise<Transaction> {
     return await (transactionManager
       ? transactionManager.getRepository(Transaction).save(dto)
       : Transaction.save({ ...dto }));
+  }
+
+  async topUpUserBalance(desiredAmount: number, user: JwtPayload): Promise<any> {
+    return {};
   }
 
   async confirmBlockedTransaction(payload: AccruePayload, transactionManager: EntityManager): Promise<void> {
