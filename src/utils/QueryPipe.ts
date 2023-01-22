@@ -188,7 +188,7 @@ class QueryPipe implements PipeTransform {
       .map((rawFilterValue) => {
         const op = this.getOperator(rawFilterValue);
         const [field, value] = this.parseOperator(op, rawFilterValue);
-        if (this.fields.includes(field)) {
+        if (this.fields.includes(field) || this.relations.some((rel) => field.includes(rel))) {
           return { [field]: value };
         }
         return null;
@@ -197,7 +197,7 @@ class QueryPipe implements PipeTransform {
     if (filters.length) {
       return filters;
     }
-    return null;
+    return;
   }
 
   private convertSort(sort: string): FindOptionsOrder<unknown> {
