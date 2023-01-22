@@ -4,7 +4,7 @@ import { Balance } from './balance.entity';
 import { Bid } from '../bid/bid.entity';
 import { TransactionService } from '../transactions/transaction.service';
 import { Transaction, TransactionEntityNames, TransactionTypeEnum } from '../transactions/transaction.entity';
-import { JwtPayload } from 'src/types';
+import { JwtPayload } from '../types';
 
 export type AccruePayload = {
   lotId: number;

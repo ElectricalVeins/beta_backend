@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
-import { CurrentUser } from 'src/utils/decorator/CurrentUser';
-import { JwtPayload } from 'src/types';
+import { CurrentUser } from '../utils/decorator/CurrentUser';
+import { JwtPayload } from '../types';
 import { BalanceService } from './balance.service';
 import { Balance } from './balance.entity';
 
