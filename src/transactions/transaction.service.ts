@@ -15,7 +15,7 @@ export class TransactionService {
     }
   }
 
-  async findAll(opts: FindManyOptions /* user: JwtPayload */): Promise<Transaction[]> {
+  async findAll(opts: FindManyOptions): Promise<Transaction[]> {
     return await Transaction.find(opts);
   }
 

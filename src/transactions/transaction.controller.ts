@@ -1,21 +1,24 @@
-import { Controller, Get, Param, Query, Post } from '@nestjs/common';
+import { Controller, Get, Param, Query, Post, UseInterceptors, UseGuards } from '@nestjs/common';
 import { Transaction } from './transaction.entity';
 import { TransactionService } from './transaction.service';
-import { QueryParser } from 'src/utils/decorator/QueryParser';
-import { CurrentUser } from 'src/utils/decorator/CurrentUser';
-import { JwtPayload } from 'src/types';
+import { QueryParser } from '../utils/decorator/QueryParser';
+import { CurrentUser } from '../utils/decorator/CurrentUser';
+import { JwtPayload } from '../types';
+import { OnlyOwnResourceInterceptor } from '../utils/OnlyOwnResorceInterceptor';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 const TransactionQueryParser = (): MethodDecorator => QueryParser(Transaction);
+const UseOnlyOwnResourceInterceptor = (): MethodDecorator => UseInterceptors(OnlyOwnResourceInterceptor);
 
 @Controller('transactions')
+@UseGuards(JwtAuthGuard)
 export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
 
   @Get()
-  /* TODO: validation: get only own resource */
+  @UseOnlyOwnResourceInterceptor()
   @TransactionQueryParser()
-  async getTransactions(@Query() opts: object, @CurrentUser() user: JwtPayload): Promise<Transaction[]> {
-    /* Add userid to query */
+  async getTransactions(@Query() opts: object): Promise<Transaction[]> {
     return await this.transactionService.findAll(opts);
   }
 
