@@ -14,3 +14,7 @@ Magic layer, pipe, made for parsing the query string into the object  readable b
 
 - Fields - permitted fields for query, sort and filtering
 - Relations - permitted relations for join
+
+### Related component
+- **OnlyOwnResourceInterceptor**
+    Automatically adds userId from request to filter
