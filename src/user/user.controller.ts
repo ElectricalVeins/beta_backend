@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Param, Put, Query, UseGuards, BadRequestException } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { User } from './user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
@@ -11,30 +12,28 @@ import { JwtPayload } from '../types';
 const UserQueryParser = (): MethodDecorator => QueryParser(User);
 
 @Controller('users')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
   @UserQueryParser()
-  @UseGuards(JwtAuthGuard)
   findAll(@Query() opts: object): Promise<Partial<User[]>> {
     return this.userService.findAll(opts);
   }
 
   @Get('currentuser')
-  @UseGuards(JwtAuthGuard)
   getCurrentUser(@CurrentUser() user: JwtPayload): Promise<Partial<User>> | void {
     return this.userService.findOneById(Number(user.userid), Number(user.tier));
   }
 
   @Get(':id')
-  @UseGuards(JwtAuthGuard)
   findOne(@Param('id') id: string, @CurrentUser() user: JwtPayload): Promise<Partial<User>> {
     return this.userService.findOneById(+id, Number(user.tier));
   }
 
   @Put(':id')
-  @UseGuards(JwtAuthGuard)
   //@UseInterceptors(FileInterceptor('user-photo',{ limits: { fileSize: Mbyte, files: 6 } }))
   update(
     @Param('id') id: string,

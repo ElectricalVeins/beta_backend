@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { Public } from '../utils/decorator/Public';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
@@ -23,12 +24,15 @@ export class AuthController {
 
   @Public()
   @Get('refresh')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   async refresh(@Query('auth') refreshToken: string): Promise<any> {
     return this.authService.refreshSession(refreshToken);
   }
 
   @Get('activate')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   async activate(@Query('token') token: string): Promise<any> {
     return this.authService.activateUser(token);
   }

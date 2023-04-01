@@ -31,7 +31,7 @@ export type DeclineBlockedTransactionPayload = {
 export class BalanceService {
   constructor(private readonly transactionService: TransactionService) {}
 
-  async getUserBalance(user: JwtPayload) {
+  async getUserBalance(user: JwtPayload): Promise<Balance> {
     return Balance.findOneOrFail({ where: { userId: Number(user.userid) } });
   }
 

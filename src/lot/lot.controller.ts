@@ -12,6 +12,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { CreateLotDto } from './dto/create-lot.dto';
 import { UpdateLotDto } from './dto/update-lot.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -30,6 +31,7 @@ const PhotosInterceptor = UseInterceptors(FileInterceptor('photos', { limits: { 
 
 @Controller('lots')
 @UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class LotController {
   constructor(private readonly lotService: LotService) {}
 
@@ -60,7 +62,6 @@ export class LotController {
   }
 
   @Put(':id')
-  @UseGuards(JwtAuthGuard)
   // @PhotosInterceptor
   async updateLot(
     @Param('id') id: string,

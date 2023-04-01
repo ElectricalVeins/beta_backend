@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateBidDto } from './dto/create-bid.dto';
 import { BidService } from './bid.service';
@@ -11,6 +12,7 @@ const BidQueryParser = (): MethodDecorator => QueryParser(Bid);
 
 @Controller('bids')
 @UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class BidController {
   constructor(private readonly bidService: BidService) {}
 

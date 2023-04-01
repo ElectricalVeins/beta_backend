@@ -1,4 +1,5 @@
 import { Controller, Get, Param, Query, Post, UseInterceptors, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { Transaction } from './transaction.entity';
 import { TransactionService } from './transaction.service';
 import { QueryParser } from '../utils/decorator/QueryParser';
@@ -12,6 +13,7 @@ const UseOnlyOwnResourceInterceptor = (): MethodDecorator => UseInterceptors(Onl
 
 @Controller('transactions')
 @UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
 
