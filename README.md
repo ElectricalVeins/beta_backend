@@ -1,7 +1,7 @@
 ## Environment
 - Linux (Ubuntu 20.04 or newer)
 - Docker
-- Docker-compose | docker compose
+- Docker-compose | docker compose (plugin version)
 - Node 18
 - yarn
 

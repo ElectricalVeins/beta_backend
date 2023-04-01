@@ -2,13 +2,12 @@
 import bashCommand from '../../bashCommand';
 import config from '../config';
 
-async function getDockerCommand(): Promise<string> {
-  const isOld = config.getSettings('Old docker compose', true);
-  return isOld ? 'docker-compose' : 'docker compose';
-}
+const getDockerComposeCommand = (): string => {
+  return config.getSettings('Standalone docker compose', true) ? 'docker-compose' : 'docker compose';
+};
 
 async function run(command: string): Promise<void> {
-  const dockerCommand = await getDockerCommand();
+  const dockerCommand = getDockerComposeCommand();
   switch (command.toLowerCase()) {
     case 'start': {
       return await bashCommand(dockerCommand, { args: ['-f', `${__dirname}/docker-compose.yaml`, 'up', '-d'] });
