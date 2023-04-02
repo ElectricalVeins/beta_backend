@@ -1,5 +1,5 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { CurrentUser } from '../utils/decorator/CurrentUser';
 import { JwtPayload } from '../types';
 import { BalanceService } from './balance.service';
@@ -18,6 +18,10 @@ export class BalanceController {
   }
 
   @Get('paymentintegration/increase')
+  @ApiOperation({
+    summary: 'should not be here',
+    description: 'Top up account balance - temporal solution. Should integrate "stripe" here',
+  })
   async increaseUserBalance(@CurrentUser() user: JwtPayload, @Query('amount') amount: number): Promise<Balance> {
     return await this.balanceService.topUpUserBalance(user, amount);
   }
