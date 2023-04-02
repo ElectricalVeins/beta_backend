@@ -256,7 +256,7 @@ class QueryPipe implements PipeTransform {
   private parseFields(responseFields: string): string[] {
     if (responseFields && !(responseFields === 'ALL')) {
       const requestedFields = this.separateRaw(responseFields);
-      return requestedFields.filter((field) => this.fields.includes(field.toLowerCase()));
+      return requestedFields.filter((field) => this.fields.includes(field));
     }
     if (responseFields === 'ALL' || !responseFields) {
       return this.fields.map((v) => v);
