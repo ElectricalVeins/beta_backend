@@ -1,15 +1,15 @@
 import { TransactionTypeEnum } from '../transaction.entity';
 
 export class CreateTransactionDto {
-  amount: number;
+  userId: number;
 
-  transactionType: TransactionTypeEnum;
+  amount: number;
 
   description: string;
 
-  entityName: string;
+  transactionType: TransactionTypeEnum;
 
-  entityId: number;
+  entityName?: string;
 
-  userId: number;
+  entityId?: number;
 }

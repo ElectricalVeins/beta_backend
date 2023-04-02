@@ -19,6 +19,6 @@ export class BalanceController {
 
   @Get('paymentintegration/increase')
   async increaseUserBalance(@CurrentUser() user: JwtPayload, @Query('amount') amount: number): Promise<Balance> {
-    return await this.balanceService.addToUserBalance(user, amount);
+    return await this.balanceService.topUpUserBalance(user, amount);
   }
 }

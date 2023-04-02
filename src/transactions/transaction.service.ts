@@ -29,10 +29,6 @@ export class TransactionService {
       : Transaction.save({ ...dto }));
   }
 
-  async topUpUserBalance(desiredAmount: number, user: JwtPayload): Promise<any> {
-    return {};
-  }
-
   async confirmBlockedTransaction(payload: AccruePayload, transactionManager: EntityManager): Promise<void> {
     const { lotId, payerId, amount, bidId } = payload;
     const repo = transactionManager.getRepository(Transaction);
