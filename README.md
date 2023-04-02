@@ -5,9 +5,15 @@
 - Node 18
 - yarn
 
+## Config paths
+```
+- /config/
+- /scripts/deployment/config/
+```
+
 ## Installation
 
-In WSL console:
+In bash console:
 
 ```bash
 # Start docker service
