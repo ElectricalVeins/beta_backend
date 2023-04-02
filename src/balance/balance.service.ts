@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { EntityManager } from 'typeorm';
+import { DataSource, EntityManager } from 'typeorm';
 import { Balance } from './balance.entity';
 import { Bid } from '../bid/bid.entity';
 import { TransactionService } from '../transactions/transaction.service';
@@ -29,10 +29,17 @@ export type DeclineBlockedTransactionPayload = {
 
 @Injectable()
 export class BalanceService {
-  constructor(private readonly transactionService: TransactionService) {}
+  constructor(private readonly dataSource: DataSource, private readonly transactionService: TransactionService) {}
 
   async getUserBalance(user: JwtPayload): Promise<Balance> {
     return Balance.findOneOrFail({ where: { user: { id: Number(user.userid) } } });
+  }
+
+  async addToUserBalance(user: JwtPayload, amount: number): Promise<Balance> {
+    return await this.dataSource.transaction('READ UNCOMMITTED', async (transaction) => {
+      await this.changeUserBalance({ userId: Number(user.userid), amount }, true, transaction);
+      return await transaction.getRepository(Balance).findOneOrFail({ where: { user: { id: Number(user.userid) } } });
+    });
   }
 
   async checkUserBalance(
