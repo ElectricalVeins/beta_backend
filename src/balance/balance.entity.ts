@@ -2,7 +2,6 @@ import { Column, Entity, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } fr
 import { BaseModel } from '../utils/BaseModel';
 import { User } from '../user/user.entity';
 import ApiProperty from '../utils/decorator/ApiProperty';
-import ApiRelation from '../utils/decorator/ApiRelation';
 
 enum BalanceStatus {
   OK = 'OK',
@@ -24,14 +23,10 @@ export class Balance extends BaseModel {
   @ApiProperty()
   status: BalanceStatus;
 
-  @Column()
-  userId: number;
-
   @UpdateDateColumn()
   @ApiProperty()
   lastModified: Date;
 
   @OneToOne(() => User, (user) => user.balance, { nullable: false })
-  @ApiRelation()
   user: User;
 }

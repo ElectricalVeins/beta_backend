@@ -12,6 +12,7 @@ export class MailService implements OnModuleInit {
 
   async onModuleInit(): Promise<void> {
     const { user, pass } = await nm.createTestAccount();
+    console.log(`Created account for Emailing: ${user}:${pass}`);
     this.transport = nm.createTransport({
       host: config.get('app.email.host'),
       port: config.get('app.email.port'),
@@ -41,6 +42,7 @@ export class MailService implements OnModuleInit {
     try {
       return await this.transport.sendMail(message);
     } catch (err) {
+      console.log(err);
       Logger.warn(err);
     }
   }
