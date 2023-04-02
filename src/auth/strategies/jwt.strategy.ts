@@ -21,6 +21,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload): Promise<object> {
+    /* TODO: change whitelist to blacklist. Store only tokens that was deprecated due to logout. */
     /*Check access token in whitelist*/
     const token = await this.cacheManager.get(createCacheKey(payload.userid, payload['iat']));
     if (!token) {
