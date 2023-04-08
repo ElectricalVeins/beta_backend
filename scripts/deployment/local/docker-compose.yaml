@@ -3,15 +3,23 @@ services:
   redis:
     image: redis:7.0.2-alpine
     restart: always
+    volumes:
+      - redis-data:/data
     ports:
       - '6379:6379'
 
   db:
     image: postgres:14.3-alpine
     restart: always
+    volumes:
+      - db-data:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: password
       POSTGRES_USER: user
       POSTGRES_DB: autodb
     ports:
       - "5432:5432"
+
+volumes:
+  redis-data:
+  db-data:
