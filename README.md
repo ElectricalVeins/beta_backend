@@ -80,9 +80,8 @@ $ yarn run test:cov
 
 ## IDEA
 
-Аукцион
+Auction/Marketplace
 
-## TBD
- - SWAGGER
- - UNIT TESTS
- - Integration Tests
+## In progress
+ - Main application flow modules (Auth, Core Logic, Payments, ...)
+ - Swagger
