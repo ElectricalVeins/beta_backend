@@ -109,12 +109,13 @@ export class LotService implements OnApplicationBootstrap {
   async closeLot(lotId: number): Promise<void> {
     await this.dataSource.transaction('REPEATABLE READ', async (transaction) => {
       const lot: Lot = await this.getOpenLotWithActualBid(lotId, transaction);
-      const {
-        bids: [bid],
-        userId: receiver,
-      } = lot;
-      const { userId: payer, bid: moneyAmount, id: bidId } = bid;
-      if (bid) {
+      if (lot?.bids?.length) {
+        const {
+          bids: [bid],
+          userId: receiver,
+        } = lot;
+        const { userId: payer, bid: moneyAmount, id: bidId } = bid;
+
         await this.bidService.setWinBid(bid, transaction);
         await this.userService.accrueMoneyForLot(
           {
@@ -127,7 +128,7 @@ export class LotService implements OnApplicationBootstrap {
           transaction
         );
       } else {
-        Logger.log('Close lot without bids');
+        Logger.log(`Close lot without bids: ${lotId}`);
       }
       await transaction.getRepository(Lot).update(lotId, { status: LotStatusEnum.CLOSED });
       /* TODO: Emit ws event about lot status update to lot owner and other participants */
