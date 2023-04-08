@@ -1,6 +1,7 @@
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { Cache } from 'cache-manager';
+import { v4 as uuid } from 'uuid';
 import config from '../config/configuration-expert';
 import { JwtPayload, JwtTokenTypes } from '../types';
 import { createCacheKey, getSecondsFromConfig } from '../utils/helpers';
@@ -22,7 +23,13 @@ export const JwtOptions: Record<JwtTokenTypes, JwtSignOptions> = {
 
 type AccessTokenString = string;
 type RefreshTokenString = string;
-type AccessTokenCacheSetter = () => unknown;
+export type TokenPairWithSession = {
+  id: string;
+  access: AccessTokenString;
+  refresh: RefreshTokenString;
+  userAgent: string;
+  createdAt: string;
+};
 
 @Injectable()
 export class TokenService {
@@ -40,22 +47,41 @@ export class TokenService {
     return this.jwtService.signAsync({ id: user.id }, JwtOptions.REFRESH);
   }
 
-  public getTokenPayload(token: string): { iat; exp } {
-    const { payload } = this.jwtService.decode(token, { complete: true }) as any;
-    return payload;
+  public decodeTokenPayload(token: string): { iat: string; exp: number } {
+    const decoded = this.jwtService.decode(token, { complete: true });
+    if (typeof decoded === 'object' && decoded !== null) {
+      return decoded.payload;
+    }
+    throw new Error('Invalid token payload');
   }
 
-  public async signTokens(
-    payload: JwtPayload
-  ): Promise<[[AccessTokenString, RefreshTokenString], AccessTokenCacheSetter]> {
+  public createTokenKey(...keyParts: string[]): string {
+    return `SESSIONS:${createCacheKey(...keyParts)}`;
+  }
+
+  private async saveTokens(
+    access: AccessTokenString,
+    refresh: RefreshTokenString,
+    payload: JwtPayload,
+    userAgent: string
+  ): Promise<TokenPairWithSession> {
+    const id = uuid();
+    const createdAt = new Date().toISOString();
+    const t = await this.cacheManager.set<TokenPairWithSession>(
+      this.createTokenKey(String(payload.userid), id),
+      { access, refresh, userAgent, createdAt, id },
+      { ttl: getSecondsFromConfig(JwtOptions.ACCESS.expiresIn as string) }
+    );
+
+    return { access, refresh, userAgent, createdAt, id };
+  }
+
+  public async signTokens(payload: JwtPayload, userAgent: string): Promise<TokenPairWithSession> {
     const [access, refresh] = await Promise.all([
       this.jwtService.signAsync(payload, JwtOptions[JwtTokenTypes.ACCESS]),
       this.jwtService.signAsync(payload, JwtOptions[JwtTokenTypes.REFRESH]),
     ]);
-    const { iat } = this.getTokenPayload(access);
-    const setCache = this.cacheManager.set.bind(this, createCacheKey(payload.userid, iat), access, {
-      ttl: getSecondsFromConfig(JwtOptions.ACCESS.expiresIn as string),
-    });
-    return [[access, refresh], setCache];
+
+    return await this.saveTokens(access, refresh, payload, userAgent);
   }
 }

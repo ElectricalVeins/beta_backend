@@ -16,7 +16,7 @@ export class RefreshTokenService {
     if (isCheckAmount) {
       await this.checkExistingRefreshTokensAmount(userId);
     }
-    const { exp } = this.tokenService.getTokenPayload(token);
+    const { exp } = this.tokenService.decodeTokenPayload(token);
     return RefreshToken.save({
       token,
       expired: exp,
