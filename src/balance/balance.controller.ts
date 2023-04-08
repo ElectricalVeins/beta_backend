@@ -1,5 +1,5 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../utils/decorator/CurrentUser';
 import { JwtPayload } from '../types';
 import { BalanceService } from './balance.service';
@@ -8,6 +8,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('balance')
 @UseGuards(JwtAuthGuard)
+@ApiTags('Balance')
 @ApiBearerAuth()
 export class BalanceController {
   constructor(private readonly balanceService: BalanceService) {}

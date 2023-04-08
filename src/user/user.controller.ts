@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Put, Query, UseGuards, BadRequestException } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { User } from './user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
@@ -14,6 +14,7 @@ const UserQueryParser = (): MethodDecorator => QueryParser(User);
 @Controller('users')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
+@ApiTags('User')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 

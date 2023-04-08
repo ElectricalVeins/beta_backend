@@ -1,5 +1,5 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Tier } from './tier.entity';
 import { CreateTierDto } from './dto/create-tier.dto';
 import { TierService } from './tier.service';
@@ -10,6 +10,7 @@ import { RolesEnum } from '../role/role.entity';
 @Controller('tiers')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
+@ApiTags('Tiers')
 export class TierController {
   constructor(private readonly tierService: TierService) {}
 
