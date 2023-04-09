@@ -1,5 +1,4 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const _ = require('lodash');
 import { Injectable } from '@nestjs/common';
 import { In } from 'typeorm';
 import { LotTag } from './lot-tag.entity';

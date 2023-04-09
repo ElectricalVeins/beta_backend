@@ -2,10 +2,10 @@ import { BadRequestException, CACHE_MANAGER, Inject, Injectable } from '@nestjs/
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { Cache } from 'cache-manager';
 import { v4 as uuid } from 'uuid';
+import { differenceInMilliseconds } from 'date-fns';
 import config from '../config/configuration-expert';
 import { JwtPayload, JwtTokenTypes } from '../types';
 import { createCacheKey, getSecondsFromConfig } from '../utils/helpers';
-import { differenceInMilliseconds, sub } from 'date-fns';
 
 export const JwtOptions: Record<JwtTokenTypes, JwtSignOptions> = {
   [JwtTokenTypes.ACCESS]: {
