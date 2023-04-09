@@ -75,6 +75,7 @@ $ yarn run test:cov
 ## Related Docs
 
 - [Architecture](./docs/architecture.md)
+- [Auth](./docs/auth.md)
 - [Query](./docs/query.md)
 - [Tasks](./docs/tasks.md)
 
