@@ -19,6 +19,7 @@ import { LoginUserDto } from '../user/dto/login-user.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser } from '../utils/decorator/CurrentUser';
 import { JwtPayload, UserAuth } from '../types';
+import { TokenPairWithSession } from '../jwt-token/jwt-token.service';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -44,15 +45,13 @@ export class AuthController {
 
   @Public()
   @Get('refresh')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
   @ApiOperation({
     summary: 'Refresh authentication',
     description: 'Send refresh token to get the new token couple',
   })
   async refresh(@Query('token') refreshToken: string, @Req() req: Request): Promise<UserAuth> {
     const userAgent = req.headers['user-agent'];
-
+    // TODO: WS | emit event when new session created
     return this.authService.refreshSession(refreshToken, userAgent);
   }
 
@@ -74,7 +73,7 @@ export class AuthController {
     summary: 'Get existing sessions',
     description: 'Get existing session info. Currently returns list of signed tokens for user',
   })
-  async existingSessions(@CurrentUser() user: JwtPayload): Promise<object[]> {
+  async existingSessions(@CurrentUser() user: JwtPayload): Promise<TokenPairWithSession[]> {
     return this.authService.getExistingSessions(Number(user.userid));
   }
 
@@ -87,8 +86,8 @@ export class AuthController {
       'Sign out from existing session. This marks current token as deprecated and forbids to use it as authentication credential. You need to pass the session id, which is available in /existing-sessions endpoint',
     parameters: [{ name: 'sessionId', in: 'path' }],
   })
-  async signOut(@CurrentUser() user: JwtPayload, @Param('sessionId') sessionId: string): Promise<string> {
-    // TODO: AUTH | store deleted session until token expires in blacklist.
-    throw new NotImplementedException();
+  async signOut(@CurrentUser() user: JwtPayload, @Param('sessionId') sessionId: string): Promise<boolean> {
+    await this.authService.signOut(Number(user.userid), sessionId);
+    return true;
   }
 }

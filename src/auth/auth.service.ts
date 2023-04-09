@@ -1,7 +1,6 @@
-import { CACHE_MANAGER, Inject, Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { Cache } from 'cache-manager';
-import { TokenService } from '../jwt-token/jwt-token.service';
+import { TokenPairWithSession, TokenService } from '../jwt-token/jwt-token.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { UserService } from '../user/user.service';
 import { RefreshTokenService } from '../token-refresh/token-refresh.service';
@@ -17,8 +16,7 @@ export class AuthService {
     private readonly tokenService: TokenService,
     private readonly userService: UserService,
     private readonly refreshTokenService: RefreshTokenService,
-    private readonly mailService: MailService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache
+    private readonly mailService: MailService
   ) {}
 
   public async signUp(dto: CreateUserDto, userAgent: string): Promise<UserAuth> {
@@ -94,10 +92,11 @@ export class AuthService {
     };
   }
 
-  public async getExistingSessions(userId: number): Promise<object[]> {
-    const keys = await this.cacheManager.store.keys(this.tokenService.createTokenKey(String(userId), '*'));
-    const tokens = await Promise.all<object>(keys.map(async (key) => this.cacheManager.get<object>(key)));
-    // TODO: return session info, instead of token list
-    return tokens;
+  public async getExistingSessions(userId: number): Promise<TokenPairWithSession[]> {
+    return this.tokenService.getExistingSessions(userId);
+  }
+
+  public async signOut(userid: number, sessionId: string): Promise<void> {
+    await this.tokenService.banSession(userid, sessionId);
   }
 }

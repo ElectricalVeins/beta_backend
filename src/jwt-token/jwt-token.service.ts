@@ -1,10 +1,11 @@
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { Cache } from 'cache-manager';
 import { v4 as uuid } from 'uuid';
 import config from '../config/configuration-expert';
 import { JwtPayload, JwtTokenTypes } from '../types';
 import { createCacheKey, getSecondsFromConfig } from '../utils/helpers';
+import { differenceInMilliseconds, sub } from 'date-fns';
 
 export const JwtOptions: Record<JwtTokenTypes, JwtSignOptions> = {
   [JwtTokenTypes.ACCESS]: {
@@ -55,25 +56,12 @@ export class TokenService {
     throw new Error('Invalid token payload');
   }
 
-  public createTokenKey(...keyParts: string[]): string {
+  public createSessionKey(...keyParts: string[]): string {
     return `SESSIONS:${createCacheKey(...keyParts)}`;
   }
 
-  private async saveTokens(
-    access: AccessTokenString,
-    refresh: RefreshTokenString,
-    payload: JwtPayload,
-    userAgent: string
-  ): Promise<TokenPairWithSession> {
-    const id = uuid();
-    const createdAt = new Date().toISOString();
-    const t = await this.cacheManager.set<TokenPairWithSession>(
-      this.createTokenKey(String(payload.userid), id),
-      { access, refresh, userAgent, createdAt, id },
-      { ttl: getSecondsFromConfig(JwtOptions.ACCESS.expiresIn as string) }
-    );
-
-    return { access, refresh, userAgent, createdAt, id };
+  public createBannedSessionKey(...keyParts: string[]): string {
+    return `BANNED_SESSIONS:${createCacheKey(...keyParts)}`;
   }
 
   public async signTokens(payload: JwtPayload, userAgent: string): Promise<TokenPairWithSession> {
@@ -82,6 +70,56 @@ export class TokenService {
       this.jwtService.signAsync(payload, JwtOptions[JwtTokenTypes.REFRESH]),
     ]);
 
-    return await this.saveTokens(access, refresh, payload, userAgent);
+    return await this.saveSession(access, refresh, payload, userAgent);
+  }
+
+  public async getExistingSessions(userId: number): Promise<TokenPairWithSession[]> {
+    const pattern = this.createSessionKey(String(userId), '*');
+
+    return this.bulkGetSessions(pattern);
+  }
+
+  public async getBannedSessions(userId: number, sessionId?: string): Promise<TokenPairWithSession[]> {
+    const pattern = this.createBannedSessionKey(String(userId), sessionId || '*');
+
+    return this.bulkGetSessions(pattern);
+  }
+
+  public async banSession(userId: number, sessionId: string): Promise<void> {
+    const session = await this.cacheManager.get<TokenPairWithSession>(this.createSessionKey(String(userId), sessionId));
+    if (!session) {
+      throw new BadRequestException('Unable to find specified session');
+    }
+    const { exp } = this.decodeTokenPayload(session.refresh);
+    const ttl = differenceInMilliseconds(new Date(Number(`${exp}000`)), new Date());
+
+    await this.cacheManager.set(this.createBannedSessionKey(String(userId), session.access), session.id, ttl);
+    await this.cacheManager.del(this.createSessionKey(String(userId), session.id));
+
+    return;
+  }
+
+  private async saveSession(
+    access: AccessTokenString,
+    refresh: RefreshTokenString,
+    payload: JwtPayload,
+    userAgent: string
+  ): Promise<TokenPairWithSession> {
+    const id = uuid();
+    const createdAt = new Date().toISOString();
+    const ttl = Number(`${getSecondsFromConfig(String(JwtOptions.ACCESS.expiresIn))}000`); // TODO: REFACTOR
+    await this.cacheManager.set(
+      this.createSessionKey(String(payload.userid), id),
+      { access, refresh, userAgent, createdAt, id },
+      ttl
+    );
+
+    return { access, refresh, userAgent, createdAt, id };
+  }
+
+  private async bulkGetSessions(keyPattern: string): Promise<TokenPairWithSession[]> {
+    const keys = await this.cacheManager.store.keys(keyPattern);
+
+    return await Promise.all(keys.map(async (key) => this.cacheManager.get(key)));
   }
 }

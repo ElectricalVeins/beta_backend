@@ -18,6 +18,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private readonly tokenService: TokenService
   ) {
     super({
+      passReqToCallback: true,
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
       secretOrKey: config.get('app.jwt.secretAccess'),
@@ -25,8 +26,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     this.time = getSecondsFromConfig(timeAccess);
   }
 
-  async validate(payload: JwtPayload): Promise<object> {
-    /* TODO: AUTH | Check deprecated sessions in blacklist. */
+  async validate(req: Request, payload: JwtPayload): Promise<object> {
+    const [, token] = req.headers['authorization']?.split(' ');
+    if (token) {
+      const sessions = await this.tokenService.getBannedSessions(Number(payload.userid), token);
+      if (sessions.length) {
+        throw new UnauthorizedException('Deprecated session');
+      }
+    }
     /*Disable long-living tokens*/
     const maxPossibleDate = addMinutes(Date.now(), this.time);
     const tokenDate = new Date(Number(`${payload['exp']}000`)); // amount of seconds to ms
