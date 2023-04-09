@@ -11,7 +11,7 @@ export type JwtPayload = {
 
 export type UserAuth = {
   user: Partial<User>;
-  tokens: { access: string; refresh: string };
+  session: { access: string; refresh: string; id: string };
 };
 
 export enum JwtTokenTypes {

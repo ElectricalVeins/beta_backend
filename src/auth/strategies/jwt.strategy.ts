@@ -1,18 +1,24 @@
 import { addMinutes, isAfter } from 'date-fns';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { BadRequestException, CACHE_MANAGER, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import config from '../../config/configuration-expert';
-import { createCacheKey, getSecondsFromConfig, timeAccess } from '../../utils/helpers';
+import { getSecondsFromConfig, timeAccess } from '../../utils/helpers';
 import { JwtPayload } from '../../types';
+import { TokenService } from '../../jwt-token/jwt-token.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   private readonly time: number;
 
-  constructor(/*Inject Repo if need*/ @Inject(CACHE_MANAGER) private cacheManager: Cache) {
+  constructor(
+    /*Inject Repo if need*/
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private readonly tokenService: TokenService
+  ) {
     super({
+      passReqToCallback: true,
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
       secretOrKey: config.get('app.jwt.secretAccess'),
@@ -20,12 +26,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     this.time = getSecondsFromConfig(timeAccess);
   }
 
-  async validate(payload: JwtPayload): Promise<object> {
-    /* TODO: change whitelist to blacklist. Store only tokens that was deprecated due to logout. */
-    /*Check access token in whitelist*/
-    const token = await this.cacheManager.get(createCacheKey(payload.userid, payload['iat']));
-    if (!token) {
-      throw new BadRequestException('Invalid token');
+  async validate(req: Request, payload: JwtPayload): Promise<object> {
+    const [, token] = req.headers['authorization']?.split(' ');
+    if (token) {
+      const sessions = await this.tokenService.getBannedSessions(Number(payload.userid), token);
+      if (sessions.length) {
+        throw new UnauthorizedException('Deprecated session');
+      }
     }
     /*Disable long-living tokens*/
     const maxPossibleDate = addMinutes(Date.now(), this.time);
