@@ -3,7 +3,6 @@ import { DataSource } from 'typeorm';
 import { TokenPairWithSession, TokenService } from '../jwt-token/jwt-token.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { UserService } from '../user/user.service';
-import { RefreshTokenService } from '../token-refresh/token-refresh.service';
 import { MailService } from '../mail/mail.service';
 import { JwtPayload, JwtTokenTypes, UserAuth } from '../types';
 import { LoginUserDto } from '../user/dto/login-user.dto';
@@ -15,7 +14,6 @@ export class AuthService {
     private readonly dataSource: DataSource,
     private readonly tokenService: TokenService,
     private readonly userService: UserService,
-    private readonly refreshTokenService: RefreshTokenService,
     private readonly mailService: MailService
   ) {}
 

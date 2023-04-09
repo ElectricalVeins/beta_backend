@@ -19,7 +19,6 @@ import { BaseModel } from '../utils/BaseModel';
 import ApiProperty from '../utils/decorator/ApiProperty';
 import ApiRelation from '../utils/decorator/ApiRelation';
 import { Role } from '../role/role.entity';
-import { RefreshToken } from '../token-refresh/token-refresh.entity';
 import { Tier } from '../tier/tier.entity';
 import { Balance } from '../balance/balance.entity';
 import { Bid } from '../bid/bid.entity';
@@ -83,9 +82,6 @@ export class User extends BaseModel {
   @ApiRelation()
   @ManyToOne(() => Role, (role) => role.users, { nullable: false })
   role: Role;
-
-  @OneToMany(() => RefreshToken, (token) => token.user)
-  refreshTokens: RefreshToken;
 
   @ManyToOne(() => Tier, (tier) => tier.user, { nullable: false })
   @ApiRelation()

@@ -9,7 +9,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AppExceptionsFilter } from '../utils/AppExceptionsFilter';
 import { TokenModule } from '../jwt-token/jwt-token.module';
-import { RefreshTokenModule } from '../token-refresh/token-refresh.module';
 import { AuthModule } from '../auth/auth.module';
 import { RoleModule } from '../role/role.module';
 import { UserModule } from '../user/user.module';
@@ -34,16 +33,15 @@ import { TransactionModule } from '../transactions/transaction.module';
     }),
     TypeOrmModule.forRoot(config.getOrmConfig()),
     ScheduleModule.forRoot(),
+    AuthModule,
     TierModule,
+    UserModule,
     TokenModule,
-    RefreshTokenModule,
     MailModule,
     CronModule,
     RoleModule,
-    UserModule,
     BalanceModule,
     TransactionModule,
-    AuthModule,
     S3Module,
     /*Auction core modules*/
     LotTagModule,
