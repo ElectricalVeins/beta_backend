@@ -25,9 +25,9 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "test:full": "npm run test && npm run test:e2e && npm run test:cov",
     "prepare": "husky install",
-    "typeorm:run": "yarn typeorm-ts-node-esm migration:run -d ./scripts/typeorm/cliConfig.ts",
-    "typeorm:revert": "yarn typeorm-ts-node-esm migration:revert -d ./scripts/typeorm/cliConfig.ts",
-    "typeorm:generate": "ts-node ./scripts/typeorm/generateMigration.ts"
+    "typeorm:run": "yarn typeorm-ts-node-esm migration:run -d ./scripts/typeorm/cli-config.ts",
+    "typeorm:revert": "yarn typeorm-ts-node-esm migration:revert -d ./scripts/typeorm/cli-config.ts",
+    "typeorm:generate": "ts-node ./scripts/typeorm/generate-migration.ts"
   },
   "dependencies": {
     "@nestjs/cache-manager": "^1.0.0",

@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import bashCommand from '../../bashCommand';
+import bashCommand from '../../bash-command';
 
 bashCommand('yarn run env:local:start')
   .then(() => bashCommand('yarn run typeorm:run'))

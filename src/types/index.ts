@@ -1,4 +1,4 @@
-import { User } from '../user/user.entity';
+import { User } from '../modules/user/user.entity';
 
 export type ID = string | number;
 

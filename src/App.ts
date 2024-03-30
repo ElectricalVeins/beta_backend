@@ -2,7 +2,7 @@ import { config as AWSConfig } from 'aws-sdk';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { ClassSerializerInterceptor, INestApplication, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { AppModule } from './app/app.module';
+import { AppModule } from './modules/app/app.module';
 import config from './config/configuration-expert';
 
 export class App {
