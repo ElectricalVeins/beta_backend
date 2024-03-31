@@ -1,8 +1,8 @@
 {
-  "name": "beta2",
+  "name": "beta_application",
   "version": "0.0.1",
-  "description": "billy's server",
-  "author": "harington",
+  "description": "Beta application",
+  "author": "ElectricalVeins",
   "private": true,
   "license": "MIT",
   "scripts": {

@@ -1,15 +1,9 @@
 ## Environment
-- Linux (Ubuntu 20.04 or newer)
+- Linux (Ubuntu 22.04 or newer)
 - Docker
-- Docker-compose | docker compose (plugin version)
-- Node 18
+- docker compose
+- Node 20
 - yarn
-
-## Config paths
-```
-- /config/
-- /scripts/deployment/config/
-```
 
 ## Installation
 
@@ -86,3 +80,9 @@ Auction/Marketplace
 ## In progress
  - Main application flow modules (Auth, Core Logic, Payments, ...)
  - Swagger
+ - Message Bus
+
+ ## Tech Debt
+ - Application Configuration Service
+ - Db migration config
+ - Delete obselete or unnecessary npm packages
