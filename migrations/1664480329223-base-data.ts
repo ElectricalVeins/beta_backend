@@ -1,5 +1,5 @@
+import { RolesEnum } from '../src/modules/role/role.entity';
 import { MigrationInterface, QueryRunner } from 'typeorm';
-import { RolesEnum } from '../role/role.entity';
 
 export class baseData1664480329223 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {

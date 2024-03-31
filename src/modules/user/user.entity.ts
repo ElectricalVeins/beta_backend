@@ -14,7 +14,7 @@ import {
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
-import config from '../config/configuration-expert';
+import config from '../../config/configuration-expert';
 import { BaseModel } from '../../utils/BaseModel';
 import ApiProperty from '../../utils/decorator/ApiProperty';
 import ApiRelation from '../../utils/decorator/ApiRelation';

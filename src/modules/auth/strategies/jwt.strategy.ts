@@ -1,9 +1,10 @@
 import { addMinutes, isAfter } from 'date-fns';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { CACHE_MANAGER, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
-import config from '../../config/configuration-expert';
+import config from '../../../config/configuration-expert';
 import { getSecondsFromConfig, timeAccess } from '../../../utils/helpers';
 import { JwtPayload } from '../../../types';
 import { TokenService } from '../../jwt-token/jwt-token.service';
@@ -13,7 +14,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   private readonly time: number;
 
   constructor(
-    /*Inject Repo if need*/
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly tokenService: TokenService
   ) {
