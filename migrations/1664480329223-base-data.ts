@@ -1,4 +1,4 @@
-import { RolesEnum } from '../src/modules/role/role.entity';
+import { RolesEnum } from '../src/modules/application/role/role.entity';
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class baseData1664480329223 implements MigrationInterface {

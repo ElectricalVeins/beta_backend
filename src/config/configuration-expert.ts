@@ -31,6 +31,8 @@ export class Configuration {
       database: this.get('db.name'),
       autoLoadEntities: this.get('db.autoLoadEntities', true),
       logging: this.get('db.logging', false),
+      retryAttempts: 5, 
+      retryDelay: 5000,
     };
   }
 }

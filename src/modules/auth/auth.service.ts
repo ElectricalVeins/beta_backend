@@ -1,21 +1,20 @@
 import { Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { DataSource } from 'typeorm';
+
 import { TokenPairWithSession, TokenService } from '../jwt-token/jwt-token.service';
-import { CreateUserDto } from '../user/dto/create-user.dto';
-import { UserService } from '../user/user.service';
 import { MailService } from '../mail/mail.service';
 import { JwtPayload, JwtTokenTypes, UserAuth } from '../../types';
-import { LoginUserDto } from '../user/dto/login-user.dto';
-import { User } from '../user/user.entity';
+import { UserService } from '../application/user/user.service';
+import { CreateUserDto } from '../application/user/dto/create-user.dto';
+import { LoginUserDto } from '../application/user/dto/login-user.dto';
+import { User } from '../application/user/user.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly dataSource: DataSource,
     private readonly tokenService: TokenService,
     private readonly userService: UserService,
     private readonly mailService: MailService
-  ) {}
+  ) { }
 
   public async signUp(dto: CreateUserDto, userAgent: string): Promise<UserAuth> {
     const user = await this.userService.create(dto);
@@ -28,8 +27,11 @@ export class AuthService {
       },
       userAgent
     );
+    const confirmationToken = await this.tokenService.createConfirmEmailToken(
+      user,
+    )
     try {
-      this.mailService.sendConfirmationEmail(user);
+      this.mailService.sendConfirmationEmail(user, confirmationToken);
     } catch (e) {
       Logger.error(e);
     }
@@ -66,7 +68,7 @@ export class AuthService {
 
   public async activateUser(token: string): Promise<Partial<User>> {
     const { userid, tier }: Partial<JwtPayload> = await this.tokenService.verifyConfirmEmailToken(token);
-    return await this.userService.activateUser(userid, tier);
+    return await this.userService.activateUser(userid as string, tier);
   }
 
   public async refreshSession(refreshToken: string, userAgent: string): Promise<UserAuth> {

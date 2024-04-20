@@ -2,7 +2,7 @@ import { config as AWSConfig } from 'aws-sdk';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { ClassSerializerInterceptor, INestApplication, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { AppModule } from './modules/app/app.module';
+import { AppModule } from './modules/app.module';
 import config from './config/configuration-expert';
 
 export class App {
@@ -14,7 +14,9 @@ export class App {
 
   public static async initialize(): Promise<App> {
     const server = await NestFactory.create(AppModule);
+    
     server.enableCors({ origin: '*' });
+    
     server.useGlobalPipes(
       new ValidationPipe({
         transform: true,
@@ -22,9 +24,12 @@ export class App {
         stopAtFirstError: false,
       })
     );
+    
     server.useGlobalInterceptors(new ClassSerializerInterceptor(server.get(Reflector), { excludePrefixes: ['__'] }));
+    
     server.useLogger(config.get('app.logs.level'));
-    AWSConfig.update(config.get('aws'));
+    
+    AWSConfig.update(config.get('aws-s3'));
 
     this.addOpenApiSpecification(server);
 

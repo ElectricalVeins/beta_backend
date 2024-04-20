@@ -44,10 +44,14 @@
       ]
     }
   },
-  "aws": {
+  "aws-s3": {
     "s3bucket": "stringvalue",
     "accessKeyId": "stringvalue",
     "secretAccessKey": "stringvalue",
     "region": "eu-central-1"
+  },
+  "aws-cognito":{
+    "userPoolId": "eu-central-1",
+    "clientId":"client-id"
   }
 }

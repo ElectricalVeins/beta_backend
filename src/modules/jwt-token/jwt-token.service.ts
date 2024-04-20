@@ -23,12 +23,10 @@ export const JwtOptions: Record<JwtTokenTypes, JwtSignOptions> = {
   },
 };
 
-type AccessTokenString = string;
-type RefreshTokenString = string;
 export type TokenPairWithSession = {
   id: string;
-  access: AccessTokenString;
-  refresh: RefreshTokenString;
+  access: string;
+  refresh: string;
   userAgent: string;
   createdAt: string;
 };
@@ -101,8 +99,8 @@ export class TokenService {
   }
 
   private async saveSession(
-    access: AccessTokenString,
-    refresh: RefreshTokenString,
+    access: string,
+    refresh: string,
     payload: JwtPayload,
     userAgent: string
   ): Promise<TokenPairWithSession> {

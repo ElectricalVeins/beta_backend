@@ -1,14 +1,14 @@
 import { Body, Controller, Get, Post, Query, UseGuards, Req, Delete, Param } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { Public } from '../../utils/decorator/Public';
+import { Public } from '../../utils/decorators/Public';
 import { AuthService } from './auth.service';
-import { User } from '../user/user.entity';
-import { CreateUserDto } from '../user/dto/create-user.dto';
-import { LoginUserDto } from '../user/dto/login-user.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { CurrentUser } from '../../utils/decorator/CurrentUser';
+import { CurrentUser } from '../../utils/decorators/CurrentUser';
 import { JwtPayload, UserAuth } from '../../types';
 import { TokenPairWithSession } from '../jwt-token/jwt-token.service';
+import { CreateUserDto } from '../application/user/dto/create-user.dto';
+import { LoginUserDto } from '../application/user/dto/login-user.dto';
+import { User } from '../application/user/user.entity';
 
 @ApiTags('Authentication')
 @Controller('auth')
